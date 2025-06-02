@@ -1,0 +1,499 @@
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>
+   Laporan 2
+  </title>
+  <script src="https://cdn.tailwindcss.com">
+  </script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&amp;display=swap" rel="stylesheet"/>
+  <style>
+   body {
+      font-family: "Poppins", sans-serif;
+    }
+  </style>
+ </head>
+ <body class="bg-[#F5F9FA] min-h-screen flex">
+  <!-- Sidebar -->
+  <aside class="bg-[#0D8B9E] w-64 min-h-screen rounded-tr-[40px] rounded-br-[40px] flex flex-col px-6 py-8 text-white relative">
+   <div class="text-[10px] font-light absolute top-2 left-6 text-[#9CA3AF] select-none">
+    LAPORAN 2
+   </div>
+   <div class="mb-12">
+    <div class="font-extrabold text-[18px] leading-[18px] mb-8 select-none">
+     <span>
+      ind
+     </span>
+     <span class="italic">
+      0
+     </span>
+     <br/>
+     <span>
+      noodle
+     </span>
+     <br/>
+     <span>
+      track.
+     </span>
+    </div>
+    <nav class="space-y-6">
+     <a class="flex items-center gap-3 text-[14px] font-semibold hover:opacity-90" href="#">
+      <i class="fas fa-home text-lg">
+      </i>
+      Dashboard
+     </a>
+     <div>
+      <div class="flex items-center gap-3 text-[14px] font-semibold mb-4">
+       <i class="fas fa-file-alt text-lg">
+       </i>
+       Laporan
+      </div>
+      <div class="flex flex-col gap-2 pl-9">
+       <input class="bg-[#3DB1C9] rounded-full text-[10px] font-semibold text-white placeholder-white px-3 py-1 w-20 focus:outline-none" placeholder="Bulan..." type="text"/>
+       <input class="bg-[#3DB1C9] rounded-full text-[10px] font-semibold text-white placeholder-white px-3 py-1 w-20 focus:outline-none" placeholder="Tahun..." type="text"/>
+       <button class="bg-[#3DB1C9] rounded-full text-[10px] font-semibold text-white px-4 py-1 w-20 self-start hover:opacity-90">
+        Cari
+       </button>
+      </div>
+     </div>
+    </nav>
+   </div>
+   <button aria-label="Collapse sidebar" class="absolute right-[-12px] top-1/2 -translate-y-1/2 bg-white rounded-full w-6 h-6 flex items-center justify-center text-[#0D8B9E] border border-[#0D8B9E] hover:bg-[#0D8B9E] hover:text-white transition">
+    <i class="fas fa-chevron-left text-xs">
+    </i>
+   </button>
+  </aside>
+  <!-- Main content -->
+  <main class="flex-1 p-10">
+   <header class="flex justify-between items-center mb-10">
+    <h1 class="text-[#0D8B9E] font-extrabold text-[28px] leading-[28px] select-none">
+     LAPORAN
+    </h1>
+    <div class="flex items-center gap-4">
+     <img alt="Manager user profile photo, young man with black hair wearing white shirt and black tie" class="w-10 h-10 rounded-full object-cover" height="40" src="https://storage.googleapis.com/a1aa/image/487a7b04-effd-4cb3-4b52-3279ab93034c.jpg" width="40"/>
+     <div class="text-right">
+      <div class="text-[14px] font-semibold text-[#3B2F2F] select-none">
+       Manager
+      </div>
+      <div class="text-[10px] font-light text-[#9CA3AF] select-none">
+       User id : 02081999
+      </div>
+     </div>
+    </div>
+   </header>
+   <div class="inline-flex rounded-lg border-4 border-[#3DB1C9] overflow-hidden mb-10 select-none">
+    <button class="bg-[#3DB1C9] text-white text-[14px] font-semibold px-6 py-2 cursor-default" disabled="">
+     APRIL
+    </button>
+    <button class="bg-[#B7D7E3] text-[#3DB1C9] text-[14px] font-semibold px-6 py-2 cursor-default" disabled="">
+     2025
+    </button>
+   </div>
+   <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <!-- 9 report cards -->
+    <article class="bg-[#0D8B9E] rounded-md shadow-md text-white w-full max-w-xs select-none">
+     <header class="flex">
+      <div class="bg-[#3DB1C9] w-14 h-14 flex flex-col items-center justify-center rounded-tl-md rounded-bl-md">
+       <span class="font-extrabold text-[20px] leading-[20px]">
+        24
+       </span>
+      </div>
+      <div class="px-3 py-2 flex flex-col justify-center text-[10px] font-semibold leading-tight">
+       <span>
+        Kamis
+       </span>
+       <span>
+        April 2025
+       </span>
+      </div>
+     </header>
+     <div class="px-3 py-2 text-[10px] font-semibold leading-tight">
+      <div class="flex justify-between">
+       <span>
+        Total Barang
+       </span>
+       <span>
+        30
+       </span>
+      </div>
+      <div class="flex justify-between">
+       <span>
+        Return
+       </span>
+       <span>
+        Tidak ada
+       </span>
+      </div>
+      <div class="flex justify-between">
+       <span>
+        Status
+       </span>
+       <span>
+        Berhasil
+       </span>
+      </div>
+     </div>
+     <footer class="px-3 py-1 border-t border-[#3DB1C9] text-[10px] font-semibold flex justify-between items-center cursor-pointer hover:underline">
+      <span>
+       Klik untuk melihat Laporan
+      </span>
+      <i class="fas fa-chevron-right">
+      </i>
+     </footer>
+    </article>
+    <article class="bg-[#0D8B9E] rounded-md shadow-md text-white w-full max-w-xs select-none">
+     <header class="flex">
+      <div class="bg-[#3DB1C9] w-14 h-14 flex flex-col items-center justify-center rounded-tl-md rounded-bl-md">
+       <span class="font-extrabold text-[20px] leading-[20px]">
+        24
+       </span>
+      </div>
+      <div class="px-3 py-2 flex flex-col justify-center text-[10px] font-semibold leading-tight">
+       <span>
+        Kamis
+       </span>
+       <span>
+        April 2025
+       </span>
+      </div>
+     </header>
+     <div class="px-3 py-2 text-[10px] font-semibold leading-tight">
+      <div class="flex justify-between">
+       <span>
+        Total Barang
+       </span>
+       <span>
+        30
+       </span>
+      </div>
+      <div class="flex justify-between">
+       <span>
+        Return
+       </span>
+       <span>
+        Tidak ada
+       </span>
+      </div>
+      <div class="flex justify-between">
+       <span>
+        Status
+       </span>
+       <span>
+        Berhasil
+       </span>
+      </div>
+     </div>
+     <footer class="px-3 py-1 border-t border-[#3DB1C9] text-[10px] font-semibold flex justify-between items-center cursor-pointer hover:underline">
+      <span>
+       Klik untuk melihat Laporan
+      </span>
+      <i class="fas fa-chevron-right">
+      </i>
+     </footer>
+    </article>
+    <article class="bg-[#0D8B9E] rounded-md shadow-md text-white w-full max-w-xs select-none">
+     <header class="flex">
+      <div class="bg-[#3DB1C9] w-14 h-14 flex flex-col items-center justify-center rounded-tl-md rounded-bl-md">
+       <span class="font-extrabold text-[20px] leading-[20px]">
+        24
+       </span>
+      </div>
+      <div class="px-3 py-2 flex flex-col justify-center text-[10px] font-semibold leading-tight">
+       <span>
+        Kamis
+       </span>
+       <span>
+        April 2025
+       </span>
+      </div>
+     </header>
+     <div class="px-3 py-2 text-[10px] font-semibold leading-tight">
+      <div class="flex justify-between">
+       <span>
+        Total Barang
+       </span>
+       <span>
+        30
+       </span>
+      </div>
+      <div class="flex justify-between">
+       <span>
+        Return
+       </span>
+       <span>
+        Tidak ada
+       </span>
+      </div>
+      <div class="flex justify-between">
+       <span>
+        Status
+       </span>
+       <span>
+        Berhasil
+       </span>
+      </div>
+     </div>
+     <footer class="px-3 py-1 border-t border-[#3DB1C9] text-[10px] font-semibold flex justify-between items-center cursor-pointer hover:underline">
+      <span>
+       Klik untuk melihat Laporan
+      </span>
+      <i class="fas fa-chevron-right">
+      </i>
+     </footer>
+    </article>
+    <article class="bg-[#0D8B9E] rounded-md shadow-md text-white w-full max-w-xs select-none">
+     <header class="flex">
+      <div class="bg-[#3DB1C9] w-14 h-14 flex flex-col items-center justify-center rounded-tl-md rounded-bl-md">
+       <span class="font-extrabold text-[20px] leading-[20px]">
+        24
+       </span>
+      </div>
+      <div class="px-3 py-2 flex flex-col justify-center text-[10px] font-semibold leading-tight">
+       <span>
+        Kamis
+       </span>
+       <span>
+        April 2025
+       </span>
+      </div>
+     </header>
+     <div class="px-3 py-2 text-[10px] font-semibold leading-tight">
+      <div class="flex justify-between">
+       <span>
+        Total Barang
+       </span>
+       <span>
+        30
+       </span>
+      </div>
+      <div class="flex justify-between">
+       <span>
+        Return
+       </span>
+       <span>
+        Tidak ada
+       </span>
+      </div>
+      <div class="flex justify-between">
+       <span>
+        Status
+       </span>
+       <span>
+        Berhasil
+       </span>
+      </div>
+     </div>
+     <footer class="px-3 py-1 border-t border-[#3DB1C9] text-[10px] font-semibold flex justify-between items-center cursor-pointer hover:underline">
+      <span>
+       Klik untuk melihat Laporan
+      </span>
+      <i class="fas fa-chevron-right">
+      </i>
+     </footer>
+    </article>
+    <article class="bg-[#0D8B9E] rounded-md shadow-md text-white w-full max-w-xs select-none">
+     <header class="flex">
+      <div class="bg-[#3DB1C9] w-14 h-14 flex flex-col items-center justify-center rounded-tl-md rounded-bl-md">
+       <span class="font-extrabold text-[20px] leading-[20px]">
+        24
+       </span>
+      </div>
+      <div class="px-3 py-2 flex flex-col justify-center text-[10px] font-semibold leading-tight">
+       <span>
+        Kamis
+       </span>
+       <span>
+        April 2025
+       </span>
+      </div>
+     </header>
+     <div class="px-3 py-2 text-[10px] font-semibold leading-tight">
+      <div class="flex justify-between">
+       <span>
+        Total Barang
+       </span>
+       <span>
+        30
+       </span>
+      </div>
+      <div class="flex justify-between">
+       <span>
+        Return
+       </span>
+       <span>
+        Tidak ada
+       </span>
+      </div>
+      <div class="flex justify-between">
+       <span>
+        Status
+       </span>
+       <span>
+        Berhasil
+       </span>
+      </div>
+     </div>
+     <footer class="px-3 py-1 border-t border-[#3DB1C9] text-[10px] font-semibold flex justify-between items-center cursor-pointer hover:underline">
+      <span>
+       Klik untuk melihat Laporan
+      </span>
+      <i class="fas fa-chevron-right">
+      </i>
+     </footer>
+    </article>
+    <article class="bg-[#0D8B9E] rounded-md shadow-md text-white w-full max-w-xs select-none">
+     <header class="flex">
+      <div class="bg-[#3DB1C9] w-14 h-14 flex flex-col items-center justify-center rounded-tl-md rounded-bl-md">
+       <span class="font-extrabold text-[20px] leading-[20px]">
+        24
+       </span>
+      </div>
+      <div class="px-3 py-2 flex flex-col justify-center text-[10px] font-semibold leading-tight">
+       <span>
+        Kamis
+       </span>
+       <span>
+        April 2025
+       </span>
+      </div>
+     </header>
+     <div class="px-3 py-2 text-[10px] font-semibold leading-tight">
+      <div class="flex justify-between">
+       <span>
+        Total Barang
+       </span>
+       <span>
+        30
+       </span>
+      </div>
+      <div class="flex justify-between">
+       <span>
+        Return
+       </span>
+       <span>
+        Tidak ada
+       </span>
+      </div>
+      <div class="flex justify-between">
+       <span>
+        Status
+       </span>
+       <span>
+        Berhasil
+       </span>
+      </div>
+     </div>
+     <footer class="px-3 py-1 border-t border-[#3DB1C9] text-[10px] font-semibold flex justify-between items-center cursor-pointer hover:underline">
+      <span>
+       Klik untuk melihat Laporan
+      </span>
+      <i class="fas fa-chevron-right">
+      </i>
+     </footer>
+    </article>
+    <article class="bg-[#0D8B9E] rounded-md shadow-md text-white w-full max-w-xs select-none">
+     <header class="flex">
+      <div class="bg-[#3DB1C9] w-14 h-14 flex flex-col items-center justify-center rounded-tl-md rounded-bl-md">
+       <span class="font-extrabold text-[20px] leading-[20px]">
+        24
+       </span>
+      </div>
+      <div class="px-3 py-2 flex flex-col justify-center text-[10px] font-semibold leading-tight">
+       <span>
+        Kamis
+       </span>
+       <span>
+        April 2025
+       </span>
+      </div>
+     </header>
+     <div class="px-3 py-2 text-[10px] font-semibold leading-tight">
+      <div class="flex justify-between">
+       <span>
+        Total Barang
+       </span>
+       <span>
+        30
+       </span>
+      </div>
+      <div class="flex justify-between">
+       <span>
+        Return
+       </span>
+       <span>
+        Tidak ada
+       </span>
+      </div>
+      <div class="flex justify-between">
+       <span>
+        Status
+       </span>
+       <span>
+        Berhasil
+       </span>
+      </div>
+     </div>
+     <footer class="px-3 py-1 border-t border-[#3DB1C9] text-[10px] font-semibold flex justify-between items-center cursor-pointer hover:underline">
+      <span>
+       Klik untuk melihat Laporan
+      </span>
+      <i class="fas fa-chevron-right">
+      </i>
+     </footer>
+    </article>
+    <article class="bg-[#0D8B9E] rounded-md shadow-md text-white w-full max-w-xs select-none">
+     <header class="flex">
+      <div class="bg-[#3DB1C9] w-14 h-14 flex flex-col items-center justify-center rounded-tl-md rounded-bl-md">
+       <span class="font-extrabold text-[20px] leading-[20px]">
+        24
+       </span>
+      </div>
+      <div class="px-3 py-2 flex flex-col justify-center text-[10px] font-semibold leading-tight">
+       <span>
+        Kamis
+       </span>
+       <span>
+        April 2025
+       </span>
+      </div>
+     </header>
+     <div class="px-3 py-2 text-[10px] font-semibold leading-tight">
+      <div class="flex justify-between">
+       <span>
+        Total Barang
+       </span>
+       <span>
+        30
+       </span>
+      </div>
+      <div class="flex justify-between">
+       <span>
+        Return
+       </span>
+       <span>
+        Tidak ada
+       </span>
+      </div>
+      <div class="flex justify-between">
+       <span>
+        Status
+       </span>
+       <span>
+        Berhasil
+       </span>
+      </div>
+     </div>
+     <footer class="px-3 py-1 border-t border-[#3DB1C9] text-[10px] font-semibold flex justify-between items-center cursor-pointer hover:underline">
+      <span>
+       Klik untuk melihat Laporan
+      </span>
+      <i class="fas fa-chevron-right">
+      </i>
+     </footer>
+    </article>
+   </section>
+  </main>
+ </body>
+</html>
