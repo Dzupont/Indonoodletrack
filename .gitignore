@@ -1,0 +1,90 @@
+# PHP
+*.log
+*.log.*
+*.bak
+*.backup
+*.old
+*.tmp
+*.temp
+
+# Database
+*.sql
+*.sql.gz
+*.sql.zip
+*.sql.bz2
+*.db
+*.sqlite
+
+# Environment variables
+.env
+.env.*
+.env.local
+.env.local.*
+.env.production
+.env.production.*
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+*.sublime-workspace
+*.sublime-project
+
+# Build files
+composer.phar
+vendor/
+node_modules/
+
+# Cache and logs
+storage/logs/
+storage/cache/
+storage/framework/
+bootstrap/cache/
+
+# Uploads and temporary files
+uploads/
+storage/app/public/
+storage/app/private/
+storage/tmp/
+
+# Operating System
+.DS_Store
+Thumbs.db
+
+# XAMPP specific
+htdocs/
+phpmyadmin/
+
+# Generated files
+*.compiled.php
+*.compiled.php~
+
+# Configuration files
+config/database.php
+config/app.php
+
+# Session files
+storage/sessions/
+
+# Test files
+storage/testing/
+
+# Laravel specific
+storage/logs/laravel.log
+storage/logs/laravel.log.*
+
+# WordPress specific
+wp-content/uploads/
+wp-content/cache/
+wp-content/upgrade/
+wp-content/backups/
+
+# Drupal specific
+sites/default/files/
+sites/default/private/
+
+# Joomla specific
+administrator/cache/
+administrator/logs/
+administrator/manifests/
