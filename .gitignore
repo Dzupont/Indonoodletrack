@@ -1,0 +1,41 @@
+# Windows system files
+Thumbs.db
+.DS_Store
+
+# XAMPP specific
+xampp/
+mysql/data/
+php/logs/
+
+# PHP
+cache/
+tmp/
+*.log
+
+# IDE specific
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Database
+*.sql
+*.sql.gz
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Build files
+/node_modules/
+/build/
+/dist/
+
+# Logs
+*.log
+logs/
+
+# Other
+vendor/
+composer.lock

@@ -1,0 +1,21 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /IndoNoodleTrack/views/auth/
+    
+    # Allow access to login.php, Signup.php, and dashboard files
+    RewriteRule ^login\.php$ - [L]
+    RewriteRule ^Signup\.php$ - [L]
+    RewriteRule ^Gudang/dashboardgudang\.php$ - [L]
+    RewriteRule ^Manager/dashboardmanager\.php$ - [L]
+    RewriteRule ^Produksi/dashboardproduksi\.php$ - [L]
+    
+    # Restrict access to other files
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ - [F,L]
+</IfModule>
+
+<FilesMatch "\.(php)$">
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>
