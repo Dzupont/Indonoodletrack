@@ -123,8 +123,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>IndoNoodle Track - Register</title>
     <style>
         body {
-            background-color: #f0f4f8;
-            font-family: Arial, sans-serif;
+            font-family: 'Poppins', sans-serif;
+            background: #ecf0f3;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -132,167 +132,195 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             margin: 0;
         }
 
-        .container {
-            background-color: #ffffff;
-            border-radius: 15px; /* Rounded corners */
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            padding: 40px;
-            width: 350px; /* Increased width for better layout */
+        .main-content {
+            width: 100%;
+            max-width: 400px;
+            padding: 15px;
+        }
+
+        .card {
+            background: #ecf0f3;
+            border-radius: 15px;
+            box-shadow: 8px 8px 20px #d1d9e6, -8px -8px 20px #ffffff;
+            padding: 30px 25px;
+        }
+
+        .card h1 {
+            font-size: 18px;
             text-align: center;
+            color: #2c3e50;
+            margin-bottom: 12px;
+            font-weight: 600;
         }
 
-        h2 {
-            color: #00bcd4; /* Main color */
-            margin-bottom: 25px;
+        .form-group {
+            margin-bottom: 20px;
         }
 
-        input[type="text"],
-        input[type="email"],
-        input[type="tel"],
-        input[type="password"],
-        select {
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select {
             width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 1px solid #dcdcdc;
-            border-radius: 5px;
-            transition: border-color 0.3s;
+            padding: 12px 14px;
+            border: none;
+            border-radius: 10px;
+            background: #f7f9fb;
+            box-shadow: inset 2px 2px 4px #d1d9e6, inset -2px -2px 4px #ffffff;
+            font-size: 14px;
+            box-sizing: border-box;
+            max-width: 100%;
         }
 
-        input:focus, select:focus {
-            border-color: #00bcd4; /* Focus color */
+        .form-group input:focus,
+        .form-group select:focus {
             outline: none;
+            background-color: #fff;
+            box-shadow: 0 0 0 2px #00bcd4;
         }
 
-        button {
+        .btn {
             width: 100%;
             padding: 12px;
-            background-color: #00bcd4; /* Button color */
+            background-color: #00bcd4;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
+            box-shadow: 3px 3px 10px #d1d9e6, -3px -3px 10px #ffffff;
+            transition: background-color 0.3s ease;
         }
 
-        button:hover {
-            background-color: #0097a7; /* Darker on hover */
+        .btn:hover {
+            background-color: #0097a7;
         }
 
         .alert {
             padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 5px;
+            border-radius: 12px;
             text-align: center;
-            display: none; /* Hidden by default */
+            font-size: 15px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background-color: #d0f0e0;
+            color: #2e7d32;
+            border: 1px solid #b2dfdb;
         }
 
         .alert-danger {
-            background-color: #ffebee; /* Alert background */
-            color: #c62828; /* Alert text color */
+            background-color: #fce4e4;
+            color: #c62828;
             border: 1px solid #ffcdd2;
-        }
-
-        .text-center {
-            margin-top: 20px;
         }
 
         .password-field {
             position: relative;
-            width: 100%;
         }
 
         .password-field i {
             position: absolute;
-            right: 10px;
+            right: 15px;
             top: 50%;
             transform: translateY(-50%);
             cursor: pointer;
-            color: #666;
+            color: #888;
+            font-size: 18px;
         }
 
         .password-field i:hover {
             color: #00bcd4;
         }
 
-        a {
-            color: #00bcd4; /* Link color */
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline; /* Underline on hover */
+        .text-center {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 14px;
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <h2>Daftar Akun</h2>
-        
-        <?php if ($error): ?>
-            <div class="alert alert-danger" style="display: block;">
-                <i class="fas fa-exclamation-circle"></i> <?php echo $error; ?>
-            </div>
-        <?php endif; ?>
-        
-        <?php if ($success): ?>
-            <div class="alert alert-success" style="display: block;">
-                <i class="fas fa-check-circle"></i> <?php echo $success; ?>
-            </div>
-        <?php endif; ?>
-        
-        <form action="signup.php" method="POST">
-            <div>
-                <label for="username">Nama Pengguna</label>
-                <input type="text" name="username" id="username" required>
-            </div>
+    <div class="main-content">
+        <div class="card">
+            <h1>Daftar Akun</h1>
             
-            <div>
-                <label for="email">Email</label>
-                <input type="email" name="email" id="email" required>
-            </div>
-            
-            <div>
-                <label for="no_tlpn">Nomor Telepon</label>
-                <input type="tel" name="no_tlpn" id="no_tlpn" required>
-            </div>
-            
-            <div>
-                <label for="sandi">Kata Sandi</label>
-                <div class="password-field">
-                    <input type="password" name="sandi" id="sandi" required>
-                    <i class="fas fa-eye" id="togglePassword"></i>
+            <?php if ($error): ?>
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i> <?php echo $error; ?>
                 </div>
-            </div>
+            <?php endif; ?>
             
-            <div>
-                <label for="confirm_sandi">Konfirmasi Kata Sandi</label>
-                <div class="password-field">
-                    <input type="password" name="confirm_sandi" id="confirm_sandi" required>
-                    <i class="fas fa-eye" id="toggleConfirmPassword"></i>
+            <?php if ($success): ?>
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i> <?php echo $success; ?>
                 </div>
-            </div>
+            <?php endif; ?>
             
-            <div>
-                <label for="role">Role</label>
-                <select name="role" id="role" required>
-                    <option value="">Pilih Role</option>
-                    <option value="gudang">Gudang</option>
-                    <option value="manager">Manager</option>
-                    <option value="produksi">Produksi</option>
-                </select>
-            </div>
+            <form action="signup.php" method="POST">
+                <div class="form-group">
+                    <label for="username">Nama Pengguna</label>
+                    <input type="text" name="username" id="username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" name="email" id="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="no_tlpn">Nomor Telepon</label>
+                    <input type="tel" name="no_tlpn" id="no_tlpn" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="sandi">Kata Sandi</label>
+                    <div class="password-field">
+                        <input type="password" name="sandi" id="sandi" required>
+                        <i class="fas fa-eye" id="togglePassword"></i>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirm_sandi">Konfirmasi Kata Sandi</label>
+                    <div class="password-field">
+                        <input type="password" name="confirm_sandi" id="confirm_sandi" required>
+                        <i class="fas fa-eye" id="toggleConfirmPassword"></i>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="role">Role</label>
+                    <select name="role" id="role" required>
+                        <option value="">Pilih Role</option>
+                        <option value="gudang">Gudang</option>
+                        <option value="manager">Manager</option>
+                        <option value="produksi">Produksi</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit" class="btn">
+                        <i class="fas fa-user-plus"></i> Daftar
+                    </button>
+                </div>
+            </form>
             
-            <button type="submit">
-                <i class="fas fa-user-plus"></i> Daftar
-            </button>
-        </form>
-        
-        <div class="text-center">
-            <p>Sudah punya akun? <a href="login.php">Login</a></p>
+            <div class="text-center">
+                <p>Sudah punya akun? <a href="login.php">Login</a></p>
+            </div>
         </div>
+    </div>
     <script>
         // Toggle password visibility
         const togglePassword = document.getElementById('togglePassword');
@@ -314,6 +342,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             this.classList.toggle('fa-eye-slash');
         });
     </script>
-    </div>
 </body>
 </html>
