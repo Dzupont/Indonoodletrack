@@ -11,67 +11,80 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
   <style>
    body {
-      font-family: "Inter", sans-serif;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f8fb;
+      margin: 0;
+    }
+    .sidebar {
+        width: 250px;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        background-color: #4a9bb1;
+        color: white;
+        padding: 20px;
+    }
+    .sidebar h4 {
+        font-weight: bold;
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .sidebar .nav-link {
+        color: white;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        padding: 10px 15px;
+        border-radius: 8px;
+        margin: 5px 0;
+        transition: all 0.3s ease;
+    }
+    .sidebar .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        transform: translateX(5px);
+    }
+    .sidebar .nav-link i {
+        margin-right: 10px;
+        width: 20px;
+        text-align: center;
+    }
+    .content {
+        margin-left: 270px;
+        padding: 30px;
     }
   </style>
  </head>
- <body class="bg-[#d4f0f5] min-h-screen flex">
+ <body>
   <!-- Sidebar -->
-  <aside class="bg-[#4a9bb1] w-56 flex flex-col items-center py-8 space-y-6 rounded-tr-3xl rounded-br-3xl text-white flex-shrink-0">
-   <div class="text-center">
-    <div class="font-extrabold text-xl leading-none">
-     indo
-     <span class="inline-block -rotate-12 font-black text-xl">
-      0
-     </span>
+    <div class="sidebar">
+        <h4>indo noodle track.</h4>
+        <a class="nav-link" href="dashboardproduksi.php">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+        <a class="nav-link" href="permintaanmasuk.php">
+            <i class="fas fa-inbox"></i>
+            <span>Pengajuan Bahan Baku</span>
+        </a>
+        <a class="nav-link" href="returbahanbaku.php">
+            <i class="fas fa-undo"></i>
+            <span>Retur Bahan Baku</span>
+        </a>
+        <a class="nav-link active" href="monitor.php">
+            <i class="fas fa-eye"></i>
+            <span>Monitoring</span>
+        </a>
+        <a class="nav-link" href="riwayat.php">
+            <i class="fas fa-history"></i>
+            <span>Riwayat</span>
+        </a>
+        <a class="nav-link" href="../../../views/auth/logout.php">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+        </a>
     </div>
-    <div class="font-extrabold text-xl leading-none">
-     noodle
-    </div>
-    <div class="font-extrabold text-xl leading-none">
-     track.
-    </div>
-   </div>
-   <nav class="flex flex-col space-y-5 w-full px-6 text-sm font-semibold">
-    <a class="flex items-center space-x-3 hover:opacity-90" href="#">
-     <i class="fas fa-home w-5 text-base">
-     </i>
-     <span>
-      Dashboard
-     </span>
-    </a>
-    <a class="flex items-center space-x-3 hover:opacity-90" href="#">
-     <i class="fas fa-file-alt w-5 text-base">
-     </i>
-     <span>
-      Permintaan Masuk
-     </span>
-    </a>
-    <a class="flex items-center space-x-3 hover:opacity-90" href="#">
-     <i class="fas fa-sync-alt w-5 text-base">
-     </i>
-     <span>
-      Retur Masuk
-     </span>
-    </a>
-    <a class="flex items-center space-x-3 hover:opacity-90" href="#">
-     <i class="fas fa-cube w-5 text-base">
-     </i>
-     <span>
-      Monitoring
-     </span>
-    </a>
-    <a class="flex items-center space-x-3 hover:opacity-90" href="#">
-     <i class="fas fa-truck w-5 text-base">
-     </i>
-     <span>
-      Stok
-     </span>
-    </a>
-   </nav>
-  </aside>
-  <!-- Main content -->
-  <main class="flex-1 p-6 max-w-[1200px] mx-auto w-full">
+   <div class="content">
    <header class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
     <h1 class="text-[#4a9bb1] font-extrabold text-2xl md:text-3xl leading-tight">
      Monitoring
