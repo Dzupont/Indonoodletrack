@@ -1,56 +1,180 @@
 <?php
 
-namespace App\Http\Controllers;
+require_once __DIR__ . '/../config/database.php';
 
-use Illuminate\Http\Request;
-use App\Models\BahanBaku;
-
-class PermintaanMasukController extends Controller
+class PermintaanMasukController
 {
     /**
-     * Menampilkan halaman keranjang
+     * Menampilkan daftar permintaan masuk
      *
-     * @return \Illuminate\View\View
+     * @return void
      */
-    public function keranjang()
-    {
-        // Ambil data keranjang dari localStorage (akan diisi oleh JavaScript)
-        $keranjang = [];
-        
-        // Data keranjang akan diisi oleh JavaScript dari localStorage
-        // Hitung total harga
-        $totalHarga = collect($keranjang)->sum(function($item) {
-            return ($item['harga'] ?? 0) * ($item['jumlah'] ?? 0);
-        });
-        
-        return view('produksi.keranjang', [
-            'keranjang' => $keranjang,
-            'totalHarga' => $totalHarga
-        ]);
-    }
     public function index()
     {
-        // Define categories
-        $categories = [
-            'Bahan Baku Utama',
-            'Bahan Tambahan',
-            'Bumbu & Perisa',
-            'Pelengkap Kemasan',
-            'Bahan Pelengkap Lain'
-        ];
+        session_start();
         
-        // Fetch all bahan baku from database
-        $allBahanBaku = BahanBaku::all();
+        // Check if user is logged in and has produksi role
+        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'produksi') {
+            header('Location: ../login.php');
+            exit();
+        }
+
+        $conn = getDBConnection();
         
-        // Organize by category
-        $bahanBakuByCategory = [];
+        // Get user data
+        $user_id = $_SESSION['user_id'];
         
-        foreach ($categories as $category) {
-            $bahanBakuByCategory[$category] = [];
+        // Fetch permintaan masuk
+        $sql = "SELECT r.*, m.nama as nama_bahan, m.satuan, u.username as requested_by
+                FROM requests r
+                LEFT JOIN raw_materials m ON r.material_id = m.id
+                LEFT JOIN users u ON r.requested_by = u.id
+                WHERE r.status != 'rejected'
+                ORDER BY r.created_at DESC";
+        
+        $result = $conn->query($sql);
+        $permintaan = array();
+        
+        while ($row = $result->fetch_assoc()) {
+            $permintaan[] = $row;
         }
         
-        foreach ($allBahanBaku as $item) {
-            // Extract protein and texture from atribut_tambahan if available
+        require_once __DIR__ . '/../views/auth/Produksi/permintaanmasuk.php';
+    }
+    
+    /**
+     * Approve permintaan masuk
+     *
+     * @param int $request_id
+     * @return void
+     */
+    public function approve($request_id)
+    {
+        session_start();
+        
+        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'produksi') {
+            header('Location: ../login.php');
+            exit();
+        }
+
+        $conn = getDBConnection();
+        
+        // Update request status
+        $sql = "UPDATE requests SET 
+                status = 'approved',
+                approved_by = ?,
+                approved_at = NOW()
+                WHERE id = ?";
+        
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ii", $_SESSION['user_id'], $request_id);
+        
+        if ($stmt->execute()) {
+            // Log activity
+            $activity_sql = "INSERT INTO activity_logs (user_id, activity_type, description) 
+                            VALUES (?, 'approve_request', ?)";
+            
+            $activity_stmt = $conn->prepare($activity_sql);
+            $description = "Menyetujui permintaan bahan baku dengan ID $request_id";
+            $activity_stmt->bind_param("is", $_SESSION['user_id'], $description);
+            $activity_stmt->execute();
+            
+            header('Location: permintaanmasuk.php?status=success');
+            exit();
+        } else {
+            header('Location: permintaanmasuk.php?status=error');
+            exit();
+        }
+    }
+    
+    /**
+     * Reject permintaan masuk
+     *
+     * @param int $request_id
+     * @return void
+     */
+    public function reject($request_id)
+    {
+        session_start();
+        
+        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'produksi') {
+            header('Location: ../login.php');
+            exit();
+        }
+
+        $conn = getDBConnection();
+        
+        // Update request status
+        $sql = "UPDATE requests SET 
+                status = 'rejected',
+                rejected_by = ?,
+                rejected_at = NOW(),
+                rejection_reason = ?
+                WHERE id = ?";
+        
+        $stmt = $conn->prepare($sql);
+        
+        $rejection_reason = $_POST['rejection_reason'] ?? '';
+        $stmt->bind_param("iss", $_SESSION['user_id'], $rejection_reason, $request_id);
+        
+        if ($stmt->execute()) {
+            // Log activity
+            $activity_sql = "INSERT INTO activity_logs (user_id, activity_type, description) 
+                            VALUES (?, 'reject_request', ?)";
+            
+            $activity_stmt = $conn->prepare($activity_sql);
+            $description = "Menolak permintaan bahan baku dengan ID $request_id: $rejection_reason";
+            $activity_stmt->bind_param("is", $_SESSION['user_id'], $description);
+            $activity_stmt->execute();
+            
+            header('Location: permintaanmasuk.php?status=success');
+            exit();
+        } else {
+            header('Location: permintaanmasuk.php?status=error');
+            exit();
+        }
+    }
+    
+    /**
+     * Show monitoring page for specific request
+     *
+     * @param int $request_id
+     * @return void
+     */
+    public function monitoring($request_id)
+    {
+        session_start();
+        
+        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'produksi') {
+            header('Location: ../login.php');
+            exit();
+        }
+
+        $conn = getDBConnection();
+        
+        // Fetch request details
+        $sql = "SELECT r.*, m.nama as nama_bahan, m.satuan, u.username as requested_by
+                FROM requests r
+                LEFT JOIN raw_materials m ON r.material_id = m.id
+                LEFT JOIN users u ON r.requested_by = u.id
+                WHERE r.id = ?";
+        
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $request_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        $request = $result->fetch_assoc();
+        
+        if (!$request) {
+            header('Location: permintaanmasuk.php?status=not_found');
+            exit();
+        }
+        
+        require_once __DIR__ . '/../views/auth/Produksi/monitoring.php';
+    }
+        
+
             $atribut = $item->atribut_tambahan ?? [];
             
             // Determine category (default to 'Bahan Baku Utama' if not specified)
