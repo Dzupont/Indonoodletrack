@@ -2,200 +2,101 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard Gudang</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>
     body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #e3f2fd; /* Warna biru telur asin untuk seluruh halaman */
+      font-family: 'Poppins', sans-serif;
     }
-
-    .sidebar {
-      width: 230px;
-      height: 100vh;
-      background-color: #036b91; /* Warna sidebar */
-      color: white;
-      padding: 30px 20px;
-      position: fixed;
-      text-align: center;
+    .nav-link {
+      @apply flex items-center gap-3 px-4 py-2 hover:bg-white/20 rounded-lg transition duration-150;
     }
-
-    .sidebar img {
-      width: 100%; /* Atur agar gambar memenuhi lebar sidebar */
-      height: auto;
-      margin-bottom: 20px; /* Jarak bawah gambar */
-    }
-
-    .sidebar a {
-      display: block;
-      color: white;
-      text-decoration: none;
-      padding: 12px;
-      margin: 8px 0;
-      border-radius: 8px;
-      transition: background-color 0.3s;
-    }
-
-    .sidebar a:hover {
-      background-color: #024e6c;
-    }
-
-    .navbar {
-      display: flex;
-      flex-direction: column; /* Mengubah navbar menjadi vertikal */
-      margin-top: 20px; /* Jarak di atas navbar */
-    }
-
-    .content {
-      margin-left: 250px; /* Jarak untuk memisahkan dari sidebar */
-      padding: 30px;
-      background-color: #ffffff; /* Warna putih untuk konten */
-      height: 100vh; /* Memastikan konten memenuhi tinggi halaman */
-      overflow: auto; /* Menambahkan scroll jika konten melebihi tinggi */
-    }
-
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background-color: white;
-      padding: 20px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
-    }
-
-    .header h1 {
-      font-size: 26px;
-      color: #036b91;
-      margin: 0;
-    }
-
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .user-info img {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-
-    .logout-btn {
-      background-color: #e74c3c;
-      color: white;
-      padding: 8px 12px;
-      border-radius: 6px;
-      text-decoration: none;
-      font-size: 14px;
-      transition: background-color 0.3s;
-    }
-
-    .logout-btn:hover {
-      background-color: #c0392b;
-    }
-
-    .notification {
-      background-color: #e0f7fa;
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      text-align: center;
-      display: none; /* Menyembunyikan notifikasi secara default */
-    }
-
-    .card-container {
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-      margin-top: 20px;
-    }
-
-    .card {
-      background-color: white;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-      padding: 25px;
-      flex: 1 1 200px; /* Flexible width */
-      min-width: 200px;
-    }
-
-    .card-title {
-      font-size: 20px;
-      font-weight: bold;
-      margin-bottom: 18px;
-      color: #036b91;
-    }
-
-    .status {
-      display: flex;
-      align-items: center;
-      font-size: 16px;
-      font-weight: 600;
-      gap: 10px;
-    }
-
-    .status.green {
-      color: #2ecc71;
-    }
-
-    .status.red {
-      color: #e74c3c;
+    .nav-link.active {
+      @apply bg-white/20;
     }
   </style>
 </head>
-<body>
-  <div class="sidebar">
-  <img src="assets/images/logoindonoodletrack2.png" alt="Logo">
-    <div class="navbar">
-      <a href="dashboardgudang.php">Dashboard</a>
-      <a href="permintaan-masuk.php">Permintaan Masuk</a>
-      <a href="returmasuk.php">Retur Masuk</a>
-      <a href="monitoringgudang.php">Monitoring</a>
-      <a href="stok-bahan-baku.php">Stok</a>
+<body class="bg-[#f9fcfd]">
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-[#4A9AB7] text-white flex flex-col py-10 px-6 rounded-tr-3xl rounded-br-3xl">
+      <div class="flex flex-col items-center mb-12">
+        <img src="/Indo_NoodleTrack-master/assets/images/logo.jpg" alt="Logo" class="w-16 h-16 mb-2 rounded-full">
+        <span class="text-xl font-bold">indo<br>noodle<br>track.</span>
+      </div>
+      <nav class="flex flex-col gap-4 text-sm font-semibold">
+        <a href="./dashboardgudang.php" class="flex items-center gap-2 active">
+          <i class="fas fa-home"></i> Dashboard
+        </a>
+        <a href="./penerimaanpermintaanmasuk.php" class="flex items-center gap-2">
+          <i class="fas fa-file-invoice"></i> Permintaan Masuk
+        </a>
+        <a href="./returmasuk.php" class="flex items-center gap-2">
+          <i class="fas fa-sync-alt"></i> Retur Masuk
+        </a>
+        <a href="./monitoringgudang.php" class="flex items-center gap-2">
+          <i class="fas fa-cube"></i> Monitoring
+        </a>
+        <a href="./stok-bahan-baku.php" class="flex items-center gap-2">
+          <i class="fas fa-box"></i> Stok
+        </a>
+        <a href="../../auth/login.php" class="flex items-center gap-2 mt-4">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Content -->
+    <div class="flex-1 p-10">
+      <div class="flex justify-between items-start mb-10">
+        <h1 class="text-3xl font-bold text-[#388ca6]">Dashboard</h1>
+        <div class="text-end">
+          <p class="font-semibold">Divisi Gudang</p>
+          <p class="text-sm text-gray-600">User id: 0023899</p>
+          <img src="https://via.placeholder.com/40" class="rounded-full mt-2" alt="User" />
+        </div>
+      </div>
+
+      <!-- Dashboard Cards -->
+      <div class="grid grid-cols-1 gap-8 max-w-3xl">
+        <!-- Permintaan -->
+        <div class="bg-[#3E90B6] p-6 rounded-xl text-white shadow">
+          <h2 class="text-lg font-semibold mb-4">Permintaan Bahan Baku</h2>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="bg-white text-[#3E90B6] p-4 rounded-lg flex flex-col items-center justify-center">
+              <i class="fas fa-user-check text-2xl mb-2 text-green-500"></i>
+              <p class="font-medium">Di Setujui</p>
+              <p class="text-xl font-bold">0</p>
+            </div>
+            <div class="bg-white text-[#3E90B6] p-4 rounded-lg flex flex-col items-center justify-center">
+              <i class="fas fa-user-times text-2xl mb-2 text-red-500"></i>
+              <p class="font-medium">Di Tolak</p>
+              <p class="text-xl font-bold">0</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Retur -->
+        <div class="bg-[#3E90B6] p-6 rounded-xl text-white shadow">
+          <h2 class="text-lg font-semibold mb-4">Retur Bahan Baku</h2>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="bg-white text-[#3E90B6] p-4 rounded-lg flex flex-col items-center justify-center">
+              <i class="fas fa-user-check text-2xl mb-2 text-green-500"></i>
+              <p class="font-medium">Di Setujui</p>
+              <p class="text-xl font-bold">0</p>
+            </div>
+            <div class="bg-white text-[#3E90B6] p-4 rounded-lg flex flex-col items-center justify-center">
+              <i class="fas fa-user-times text-2xl mb-2 text-red-500"></i>
+              <p class="font-medium">Di Tolak</p>
+              <p class="text-xl font-bold">0</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-
-  <div class="content">
-    <div class="header">
-      <h1>Dashboard</h1>
-      <div class="user-info">
-        <img src="assets/images/logoindonoodletrack2.png" alt="Logo IndoNoodleTrack" />
-        <span>Divisi Gudang</span>
-        <a href="../../../views/auth/logout.php" class="logout-btn">Logout</a>
-      </div>
-    </div>
-
-    <div class="notification" id="welcome-notification">
-      <p>Selamat datang di dashboard Anda!</p>
-    </div>
-
-    <div class="card-container">
-      <div class="card">
-        <div class="card-title">Permintaan</div>
-        <div class="status green">✔ Completed</div>
-      </div>
-      <div class="card">
-        <div class="card-title">Stok</div>
-        <div class="status red">✖ Pending</div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // Menampilkan notifikasi selamat datang saat halaman dimuat
-    window.onload = function() {
-      document.getElementById('welcome-notification').style.display = 'block';
-      
-      // Menghilangkan notifikasi setelah 3 detik
-      setTimeout(function() {
-        document.getElementById('welcome-notification').style.display = 'none';
-      }, 3000);
-    };
-  </script>
 </body>
 </html>

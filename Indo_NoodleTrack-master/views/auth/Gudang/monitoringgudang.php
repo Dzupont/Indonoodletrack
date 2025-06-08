@@ -18,46 +18,32 @@
  <body class="bg-white">
   <div class="flex min-h-screen max-h-screen overflow-hidden">
    <!-- Sidebar -->
-   <aside class="bg-[#4A9AB7] w-72 flex flex-col items-center py-10 space-y-10 rounded-tr-3xl rounded-br-3xl select-none">
-    <img alt="Indo Noodle Track logo in white" class="mb-6" height="64" src="https://storage.googleapis.com/a1aa/image/1e1af7f1-ba7f-40f2-e6e3-7846efac2ad0.jpg" width="64"/>
-    <nav class="flex flex-col space-y-6 w-full px-8 text-white font-semibold text-sm">
-     <a class="flex items-center space-x-3" href="#">
-      <i class="fas fa-home text-lg">
-      </i>
-      <span>
-       Dashboard
-      </span>
-     </a>
-     <a class="flex items-center space-x-3" href="#">
-      <i class="fas fa-file-invoice text-lg">
-      </i>
-      <span>
-       Permintaan Masuk
-      </span>
-     </a>
-     <a class="flex items-center space-x-3" href="#">
-      <i class="fas fa-sync-alt text-lg">
-      </i>
-      <span>
-       Retur Masuk
-      </span>
-     </a>
-     <a aria-current="page" class="flex items-center space-x-3 text-[#C9E9F0] font-bold" href="#">
-      <i class="fas fa-cube text-lg">
-      </i>
-      <span>
-       Monitoring
-      </span>
-     </a>
-     <a class="flex items-center space-x-3" href="#">
-      <i class="fas fa-search text-lg">
-      </i>
-      <span>
-       Riwayat
-      </span>
-     </a>
+   <aside class="w-64 bg-[#4A9AB7] text-white flex flex-col py-10 px-6 rounded-tr-3xl rounded-br-3xl">
+    <div class="flex flex-col items-center mb-12">
+        <img src="/Indo_NoodleTrack-master/assets/images/logo.jpg" alt="Logo" class="w-16 h-16 mb-2 rounded-full">
+        <span class="text-xl font-bold">indo<br>noodle<br>track.</span>
+    </div>
+    <nav class="flex flex-col gap-4 text-sm font-semibold">
+        <a href="./dashboardgudang.php" class="flex items-center gap-2">
+            <i class="fas fa-home"></i> Dashboard
+        </a>
+        <a href="./penerimaanpermintaanmasuk.php" class="flex items-center gap-2">
+            <i class="fas fa-file-invoice"></i> Permintaan Masuk
+        </a>
+        <a href="./returmasuk.php" class="flex items-center gap-2">
+            <i class="fas fa-sync-alt"></i> Retur Masuk
+        </a>
+        <a href="./monitoringgudang.php" class="flex items-center gap-2 active">
+            <i class="fas fa-cube"></i> Monitoring
+        </a>
+        <a href="./stok-bahan-baku.php" class="flex items-center gap-2">
+            <i class="fas fa-box"></i> Stok
+        </a>
+        <a href="../../auth/login.php" class="flex items-center gap-2 mt-4">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
     </nav>
-   </aside>
+</aside>
    <!-- Main content -->
    <main class="flex-1 flex flex-col bg-white rounded-tl-3xl rounded-bl-3xl overflow-hidden">
     <!-- Header -->

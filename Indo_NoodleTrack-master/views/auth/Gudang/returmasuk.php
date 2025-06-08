@@ -1,11 +1,24 @@
 <?php
+// Get absolute path to project root
+$rootPath = dirname(dirname(dirname(dirname(__FILE__))));
+// Load database configuration
+require_once $rootPath . '/config/database.php';
+
+// Start session
 session_start();
-require_once '../../../config/database.php';
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header('Location: ../../auth/login.php');
     exit();
+}
+
+// Get database connection
+$conn = getDBConnection();
+
+// Check if connection is successful
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
 }
 
 // Process form submission
@@ -32,8 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Fetch all returns
-$conn = getDBConnection();
-$sql = "SELECT r.*, m.nama as material_name, u.username as returned_by_name 
+$sql = "SELECT r.*, m.name as material_name, u.username as returned_by_name 
         FROM returns r 
         LEFT JOIN raw_materials m ON r.material_id = m.id 
         LEFT JOIN users u ON r.returned_by = u.id 
@@ -44,162 +56,183 @@ while ($row = $result->fetch_assoc()) {
     $returns[] = $row;
 }
 ?>
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retur Masuk - Gudang</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <title>Retur Masuk</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f9fafb;
+        }
+    </style>
 </head>
-<body>
-    <div class="container mt-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>Retur Masuk</h2>
-            <div>
-                <a href="index.php" class="btn btn-secondary me-2"><i class="bi bi-arrow-left"></i> Kembali</a>
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addReturnModal">
-                    <i class="bi bi-plus"></i> Tambah Retur
-                </button>
+<body class="flex">
+
+<aside class="bg-[#4A9AB7] w-60 min-h-screen py-10 px-6 text-white rounded-tr-3xl rounded-br-3xl">
+    <div class="flex items-center justify-center mb-10">
+        <img src="/Indo_NoodleTrack-master/assets/images/logo.jpg" alt="Logo" class="h-12 w-12" />
+    </div>
+    <nav class="flex flex-col space-y-6 text-base font-semibold">
+        <a href="./dashboardgudang.php" class="flex items-center space-x-3 hover:text-gray-200">
+            <i class="fas fa-home"></i><span>Dashboard</span>
+        </a>
+        <a href="./penerimaanpermintaanmasuk.php" class="flex items-center space-x-3 hover:text-gray-200">
+            <i class="fas fa-file-invoice"></i><span>Permintaan Masuk</span>
+        </a>
+        <a href="./returmasuk.php" class="flex items-center space-x-3 text-[#FFE484]">
+            <i class="fas fa-sync-alt"></i><span>Retur Masuk</span>
+        </a>
+        <a href="./monitoringgudang.php" class="flex items-center space-x-3 hover:text-gray-200">
+            <i class="fas fa-cube"></i><span>Monitoring</span>
+        </a>
+        <a href="./stok-bahan-baku.php" class="flex items-center space-x-3 hover:text-gray-200">
+            <i class="fas fa-box"></i><span>Stok Bahan Baku</span>
+        </a>
+        <a href="../../views/auth/logout.php" class="flex items-center space-x-3 hover:text-gray-200">
+            <i class="fas fa-sign-out-alt"></i><span>Logout</span>
+        </a>
+    </nav>
+</aside>
+
+<main class="flex-1 bg-white px-10 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-semibold text-[#4A9AB7]">Retur Masuk</h1>
+        <button class="bg-[#4A9AB7] text-white px-4 py-2 rounded-lg shadow-md hover:bg-[#3a7c95]" data-bs-toggle="modal" data-bs-target="#addReturnModal">
+            + Tambah Retur
+        </button>
+    </div>
+
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="bg-green-100 text-green-800 px-4 py-2 rounded mb-4"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
+    <?php endif; ?>
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="bg-red-100 text-red-800 px-4 py-2 rounded mb-4"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
+    <?php endif; ?>
+
+    <div class="bg-[#F4FBFF] p-6 rounded-lg shadow">
+        <table class="w-full text-sm text-left text-gray-700">
+            <thead class="text-xs text-gray-700 uppercase bg-[#D9F2FF]">
+                <tr>
+                    <th class="px-4 py-3">No</th>
+                    <th class="px-4 py-3">Material</th>
+                    <th class="px-4 py-3">Jumlah</th>
+                    <th class="px-4 py-3">Alasan</th>
+                    <th class="px-4 py-3">Dikembalikan Oleh</th>
+                    <th class="px-4 py-3">Tanggal</th>
+                    <th class="px-4 py-3">Status</th>
+                    <th class="px-4 py-3">Aksi</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white">
+                <?php foreach ($returns as $index => $retur): ?>
+                <tr class="border-b">
+                    <td class="px-4 py-3"><?php echo $index + 1; ?></td>
+                    <td class="px-4 py-3"><?php echo htmlspecialchars($retur['material_name']); ?></td>
+                    <td class="px-4 py-3"><?php echo htmlspecialchars($retur['quantity']); ?></td>
+                    <td class="px-4 py-3"><?php echo htmlspecialchars($retur['reason']); ?></td>
+                    <td class="px-4 py-3"><?php echo htmlspecialchars($retur['returned_by_name']); ?></td>
+                    <td class="px-4 py-3"><?php echo date('d/m/Y H:i', strtotime($retur['created_at'])); ?></td>
+                    <td class="px-4 py-3">
+                        <?php if ($retur['approved_by']): ?>
+                            <span class="text-green-600 font-medium">Disetujui</span>
+                        <?php else: ?>
+                            <span class="text-yellow-600 font-medium">Menunggu</span>
+                        <?php endif; ?>
+                    </td>
+                    <td class="px-4 py-3">
+                        <button class="text-blue-600 hover:underline" data-bs-toggle="modal" data-bs-target="#viewReturnModal" data-id="<?php echo $retur['id']; ?>">
+                            Lihat
+                        </button>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<!-- Add Return Modal -->
+<div class="modal fade" id="addReturnModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Tambah Retur</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-        </div>
+            <div class="modal-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="material_id" class="form-label">Material</label>
+                        <select class="form-control" id="material_id" name="material_id" required>
+                            <option value="">Pilih Material</option>
+                            <?php
+                            $sql = "SELECT id, nama FROM raw_materials ORDER BY nama";
+                            $result = $conn->query($sql);
+                            while ($row = $result->fetch_assoc()) {
+                                echo "<option value='" . $row['id'] . "'>" . $row['nama'] . "</option>";
+                            }
+                            ?>
+                        </select>
+                    </div>
 
-        <?php if (isset($_SESSION['success'])): ?>
-            <div class="alert alert-success"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
-        <?php endif; ?>
+                    <div class="mb-3">
+                        <label for="quantity" class="form-label">Jumlah</label>
+                        <input type="number" class="form-control" id="quantity" name="quantity" min="1" required>
+                    </div>
 
-        <?php if (isset($_SESSION['error'])): ?>
-            <div class="alert alert-danger"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
-        <?php endif; ?>
+                    <div class="mb-3">
+                        <label for="reason" class="form-label">Alasan Retur</label>
+                        <textarea class="form-control" id="reason" name="reason" rows="3" required></textarea>
+                    </div>
 
-        <!-- List of Returns -->
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Daftar Retur</h5>
-                <div class="table-responsive">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Material</th>
-                                <th>Jumlah</th>
-                                <th>Alasan</th>
-                                <th>Dikembalikan Oleh</th>
-                                <th>Tanggal</th>
-                                <th>Status</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($returns as $index => $retur): ?>
-                            <tr>
-                                <td><?php echo $index + 1; ?></td>
-                                <td><?php echo htmlspecialchars($retur['material_name']); ?></td>
-                                <td><?php echo htmlspecialchars($retur['quantity']); ?></td>
-                                <td><?php echo htmlspecialchars($retur['reason']); ?></td>
-                                <td><?php echo htmlspecialchars($retur['returned_by_name']); ?></td>
-                                <td><?php echo date('d/m/Y H:i', strtotime($retur['created_at'])); ?></td>
-                                <td>
-                                    <?php if ($retur['approved_by']): ?>
-                                        <span class="badge bg-success">Disetujui</span>
-                                    <?php else: ?>
-                                        <span class="badge bg-warning">Menunggu Persetujuan</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <button type="button" class="btn btn-sm btn-info" 
-                                            data-bs-toggle="modal" 
-                                            data-bs-target="#viewReturnModal" 
-                                            data-id="<?php echo $retur['id']; ?>">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Simpan</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Add Return Modal -->
-    <div class="modal fade" id="addReturnModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Tambah Retur</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form method="POST">
-                        <div class="mb-3">
-                            <label for="material_id" class="form-label">Material</label>
-                            <select class="form-control" id="material_id" name="material_id" required>
-                                <option value="">Pilih Material</option>
-                                <?php
-                                $sql = "SELECT id, nama FROM raw_materials ORDER BY nama";
-                                $result = $conn->query($sql);
-                                while ($row = $result->fetch_assoc()) {
-                                    echo "<option value='" . $row['id'] . "'>" . $row['nama'] . "</option>";
-                                }
-                                ?>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="quantity" class="form-label">Jumlah</label>
-                            <input type="number" class="form-control" id="quantity" name="quantity" min="1" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="reason" class="form-label">Alasan Retur</label>
-                            <textarea class="form-control" id="reason" name="reason" rows="3" required></textarea>
-                        </div>
-
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                            <button type="submit" class="btn btn-primary">Simpan</button>
-                        </div>
-                    </form>
-                </div>
+<!-- View Return Modal -->
+<div class="modal fade" id="viewReturnModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detail Retur</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="returnDetails"></div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- View Return Modal -->
-    <div class="modal fade" id="viewReturnModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Detail Retur</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div id="returnDetails"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // View Return Details
-        var viewModal = new bootstrap.Modal(document.getElementById('viewReturnModal'));
-        var viewModalElement = document.getElementById('viewReturnModal');
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // View Return Details
+    var viewModal = new bootstrap.Modal(document.getElementById('viewReturnModal'));
+    var viewModalElement = document.getElementById('viewReturnModal');
+    
+    viewModalElement.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var id = button.getAttribute('data-id');
         
-        viewModalElement.addEventListener('show.bs.modal', function (event) {
-            var button = event.relatedTarget;
-            var id = button.getAttribute('data-id');
-            
-            fetch('get_return_details.php?id=' + id)
-                .then(response => response.text())
-                .then(html => {
-                    document.getElementById('returnDetails').innerHTML = html;
-                });
-        });
-    </script>
+        fetch('get_return_details.php?id=' + id)
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('returnDetails').innerHTML = html;
+            });
+    });
+</script>
 </body>
 </html>

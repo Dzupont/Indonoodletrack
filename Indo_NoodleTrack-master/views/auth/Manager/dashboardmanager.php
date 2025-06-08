@@ -3,190 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: 'Arial', sans-serif;
-            background-color: #f5f5f5; /* Warna latar belakang */
-        }
-
-        .sidebar {
-            width: 250px;
-            height: 100vh;
-            background-color: #0095c8; /* Warna sidebar */
-            color: white;
-            padding: 20px;
-            position: fixed;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .sidebar h2 {
-            margin: 0 0 20px 0;
-            font-size: 24px;
-            text-align: center; /* Memusatkan logo */
-        }
-
-        .sidebar a {
-            color: white;
-            text-decoration: none;
-            display: block;
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-        }
-
-        .sidebar a:hover {
-            background-color: #007bb5; /* Warna saat hover */
-        }
-
-        .content {
-            margin-left: 250px; /* Menggeser konten ke kanan */
-            padding: 20px;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: white;
-            padding: 15px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .header h1 {
-            margin: 0;
-            font-size: 28px; /* Ukuran font judul */
-        }
-
-        .dashboard-summary {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            margin: 20px 0;
-        }
-
-        .summary-item {
-            text-align: center;
-            flex: 1;
-        }
-
-        .summary-item h2 {
-            margin: 0;
-            font-size: 36px;
-        }
-
-        .summary-item p {
-            margin: 5px 0;
-            font-weight: bold;
-        }
-
-        .activity-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        .activity-table th, .activity-table td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: left;
-        }
-
-        .activity-table th {
-            background-color: #0095c8;
-            color: white;
-        }
-
-        .activity-table tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-        .activity-table tr:hover {
-            background-color: #f1f1f1;
-        }
-
-        .profile {
-            display: flex;
-            align-items: center;
-        }
-
-        .profile img {
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            margin-right: 10px;
-        }
-    </style>
+    <title>Dashboard Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
-    <div class="sidebar">
-        <h2>Indo Noodle Track</h2>
-        <a href="#">Dashboard</a>
-        <a href="#">Laporan</a>
-        <a href="#">Bahan Baku</a>
-        <a href="#">Stok</a>
-        <a href="#">Keluar</a>
-    </div>
+<body class="bg-gray-100 text-gray-900">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-[#0095c8] text-white p-6 rounded-tr-3xl rounded-br-3xl">
+            <div class="text-center mb-10">
+                <img src="assets/images/logo.jpg" alt="Logo" class="w-16 h-16 mx-auto rounded-full mb-2">
+                <div class="text-xl font-bold leading-tight">indo<br>noodle<br>track.</div>
+            </div>
+            <nav class="flex flex-col gap-4">
+                <a href="dashboardmanager.php" class="px-4 py-2 font-semibold bg-white text-[#0095c8] rounded hover:bg-gray-100">Dashboard</a>
 
-    <div class="content">
-        <div class="header">
-            <h1>Dashboard Manager</h1>
-            <div class="profile">
-                <a href="../../../views/auth/logout.php" class="logout-btn">Logout</a>
-                <img src="profile.jpg" alt="Profile Picture"> <!-- Ganti dengan foto profil yang sesuai -->
-                <span>Manager</span>
-            </div>
-        </div>
+                <!-- Tombol redirect ke fiturlaporan.php -->
+                <form action="fiturlaporan.php" method="get">
+                    <button type="submit" class="w-full text-left px-4 py-2 mt-2 font-semibold bg-white text-[#0095c8] rounded hover:bg-gray-100 transition">
+                        Laporan
+                    </button>
+                </form>
 
-        <div class="dashboard-summary">
-            <div class="summary-item">
-                <h2>24</h2>
-                <p>Total Aktivitas</p>
-            </div>
-            <div class="summary-item">
-                <h2>20</h2>
-                <p>Permintaan Bahan Baku</p>
-            </div>
-            <div class="summary-item">
-                <h2>4</h2>
-                <p>Return</p>
-            </div>
-        </div>
+                <!-- Filter -->
+                <div class="mt-6">
+                    <p class="text-sm font-semibold ml-4 mb-1">Filter</p>
+                    <div class="ml-4 space-y-2">
+                        <input type="text" placeholder="Bulan..." class="w-full px-2 py-1 rounded text-black">
+                        <input type="text" placeholder="Tahun..." class="w-full px-2 py-1 rounded text-black">
+                        <button class="w-full mt-2 bg-white text-[#0095c8] font-bold px-3 py-1 rounded">Cari</button>
+                    </div>
+                </div>
+            </nav>
+        </aside>
 
-        <h2>Aktivitas Berhasil</h2>
-        <table class="activity-table">
-            <thead>
-                <tr>
-                    <th>Order ID</th>
-                    <th>Tanggal</th>
-                    <th>Aktivitas</th>
-                    <th>Total Barang</th>
-                    <th>Return</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>001</td>
-                    <td>01/04/2025</td>
-                    <td>Pemesanan</td>
-                    <td>100</td>
-                    <td>No</td>
-                </tr>
-                <tr>
-                    <td>002</td>
-                    <td>02/04/2025</td>
-                    <td>Pengiriman</td>
-                    <td>50</td>
-                    <td>Yes</td>
-                </tr>
-            </tbody>
-        </table>
+        <!-- Main Content -->
+        <main class="flex-1 p-8 overflow-y-auto">
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold">Dashboard</h1>
+                <div class="flex items-center gap-4">
+                    <a href="logout.php" class="text-sm font-medium text-red-600 hover:underline">Logout</a>
+                    <div class="flex items-center">
+                        <img src="assets/images/profile.jpg" alt="Profile" class="w-10 h-10 rounded-full mr-2">
+                        <div>
+                            <p class="font-semibold">Manager</p>
+                            <p class="text-xs text-gray-500">User ID: 02081999</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Month & Year -->
+            <div class="flex items-center space-x-4 mb-4">
+                <button class="bg-[#a4d4de] text-white font-semibold px-4 py-1 rounded">APRIL</button>
+                <button class="bg-[#a4d4de] text-white font-semibold px-4 py-1 rounded">2025</button>
+            </div>
+
+            <!-- Summary Boxes -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-white shadow rounded p-6 text-center">
+                    <p class="text-lg font-semibold text-gray-600">Total Aktivitas</p>
+                    <p class="text-4xl font-bold mt-2">24</p>
+                </div>
+                <div class="bg-white shadow rounded p-6 text-center">
+                    <p class="text-lg font-semibold text-gray-600">Permintaan Bahan Baku</p>
+                    <p class="text-4xl font-bold mt-2">20</p>
+                </div>
+                <div class="bg-white shadow rounded p-6 text-center">
+                    <p class="text-lg font-semibold text-gray-600">Return</p>
+                    <p class="text-4xl font-bold mt-2">4</p>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="bg-white shadow rounded p-4">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold">Aktivitas Berhasil</h2>
+                    <div class="text-sm text-gray-600">Show <strong>All Column</strong></div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full border border-gray-300">
+                        <thead>
+                            <tr class="bg-[#0095c8] text-white">
+                                <th class="py-2 px-4 border">Order ID</th>
+                                <th class="py-2 px-4 border">Tanggal</th>
+                                <th class="py-2 px-4 border">Aktivitas</th>
+                                <th class="py-2 px-4 border">Total Barang</th>
+                                <th class="py-2 px-4 border">Return</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="text-center hover:bg-gray-50">
+                                <td class="py-2 px-4 border">001</td>
+                                <td class="py-2 px-4 border">01/04/2025</td>
+                                <td class="py-2 px-4 border">Pemesanan</td>
+                                <td class="py-2 px-4 border">100</td>
+                                <td class="py-2 px-4 border">No</td>
+                            </tr>
+                            <tr class="text-center hover:bg-gray-50">
+                                <td class="py-2 px-4 border">002</td>
+                                <td class="py-2 px-4 border">02/04/2025</td>
+                                <td class="py-2 px-4 border">Pengiriman</td>
+                                <td class="py-2 px-4 border">50</td>
+                                <td class="py-2 px-4 border">Yes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Pagination Placeholder -->
+                <div class="mt-4 flex justify-end text-sm text-gray-500">
+                    <span> &lt; 1 2 3 ... 10 &gt; </span>
+                </div>
+            </div>
+        </main>
     </div>
 </body>
 </html>
