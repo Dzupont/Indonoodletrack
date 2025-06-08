@@ -152,11 +152,11 @@
   <div class="sidebar">
   <img src="assets/images/logoindonoodletrack2.png" alt="Logo">
     <div class="navbar">
-      <a href="#">Dashboard</a>
-      <a href="#">Permintaan Masuk</a>
-      <a href="#">Retur Masuk</a>
-      <a href="#">Monitoring</a>
-      <a href="#">Stok</a>
+      <a href="dashboardgudang.php">Dashboard</a>
+      <a href="permintaan-masuk.php">Permintaan Masuk</a>
+      <a href="returmasuk.php">Retur Masuk</a>
+      <a href="monitoringgudang.php">Monitoring</a>
+      <a href="stok-bahan-baku.php">Stok</a>
     </div>
   </div>
 
