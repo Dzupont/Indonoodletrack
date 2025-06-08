@@ -28,158 +28,165 @@ $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
 $user = $result->fetch_assoc();
-
-// Get statistics
-// Total production orders
-$stmt = $conn->prepare("SELECT COUNT(*) as total_orders FROM orders WHERE status IN ('pending', 'processing')");
-$stmt->execute();
-$result = $stmt->get_result();
-$total_orders = $result->fetch_assoc()['total_orders'] ?? 0;
-
-// Completed production
-$stmt = $conn->prepare("SELECT COUNT(*) as completed_orders FROM orders WHERE status = 'completed'");
-$stmt->execute();
-$result = $stmt->get_result();
-$completed_orders = $result->fetch_assoc()['completed_orders'] ?? 0;
-
-// Production progress
-$stmt = $conn->prepare("SELECT COUNT(*) as in_progress FROM orders WHERE status = 'processing'");
-$stmt->execute();
-$result = $stmt->get_result();
-$in_progress = $result->fetch_assoc()['in_progress'] ?? 0;
-
-// Get recent orders
-$stmt = $conn->prepare("SELECT * FROM orders WHERE status IN ('pending', 'processing') ORDER BY created_at DESC LIMIT 5");
-$stmt->execute();
-$result = $stmt->get_result();
-$recent_orders = $result->fetch_all(MYSQLI_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IndoNoodle Track - Produksi Dashboard</title>
+    <title>Permintaan Bahan Baku - IndoNoodle Track</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body {
-            background-color: #f8f9fa;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f4f8fb;
+            margin: 0;
         }
-        .dashboard-card {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #4a9bb1;
+            color: white;
             padding: 20px;
         }
-        .stat-card {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        .stat-card h3 {
-            color: #333;
-            margin-bottom: 10px;
-        }
-        .stat-card p {
-            font-size: 24px;
+        .sidebar h4 {
             font-weight: bold;
-            color: #666;
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .sidebar .nav-link {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin: 5px 0;
+            transition: all 0.3s ease;
+        }
+        .sidebar .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+        .sidebar .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        .content {
+            margin-left: 270px;
+            padding: 30px;
+        }
+        .product-card {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            background-color: white;
+            text-align: center;
+            transition: box-shadow 0.3s;
+        }
+        .product-card:hover {
+            box-shadow: 0px 4px 15px rgba(0,0,0,0.1);
+        }
+        .product-card img {
+            max-width: 100%;
+            height: auto;
+        }
+        .product-name {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .overlay {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #2e94a6;
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            display: none;
+        }
+        .tabs {
+            margin-bottom: 20px;
+        }
+        .tabs button {
+            border: none;
+            background-color: #e3f2f9;
+            margin-right: 10px;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        .tabs button.active {
+            background-color: #2e94a6;
+            color: white;
         }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand" href="#">IndoNoodle Track</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="production-orders.php">Production Orders</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="production-progress.php">Production Progress</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="materials.php">Materials</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="../../../views/auth/logout.php">Logout</a>
-                    </li>
-                </ul>
+    <div class="sidebar">
+        <h4>indo noodle track.</h4>
+        <a class="nav-link" href="dashboardproduksi.php"><i class="fas fa-home me-2"></i> Dashboard</a>
+        <a class="nav-link" href="permintaanmasuk.php"><i class="fas fa-inbox me-2"></i> Permintaan Bahan Baku</a>
+        <a class="nav-link" href="returbahanbaku.php"><i class="fas fa-undo me-2"></i> Retur Bahan Baku</a>
+        <a class="nav-link" href="monitor.php"><i class="fas fa-eye me-2"></i> Monitoring</a>
+        <a class="nav-link" href="riwayat.php"><i class="fas fa-history me-2"></i> Riwayat</a>
+        <a class="nav-link" href="../../../views/auth/logout.php"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
+    </div>
+    <div class="content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Permintaan Bahan Baku</h2>
+            <div class="d-flex align-items-center">
+                <div class="me-3 text-end">
+                    <strong>Divisi Gudang</strong><br>
+                    User Id : 02018999
+                </div>
+                <img src="https://via.placeholder.com/40" class="rounded-circle" alt="User Image">
             </div>
         </div>
-    </nav>
-
-    <div class="container mt-4">
+        <div class="tabs">
+            <button class="active">Bahan Baku Utama</button>
+            <button>Bahan Tambahan</button>
+            <button>Bumbu & Perisa</button>
+            <button>Perlengkapan Kemasan</button>
+            <button>Bahan Penolong Lain</button>
+        </div>
         <div class="row">
-            <div class="col-md-12">
-                <h2>Welcome, <?php echo htmlspecialchars($user['username']); ?>!</h2>
-            </div>
-        </div>
-
-        <div class="row mt-4">
-            <div class="col-md-4">
-                <div class="stat-card">
-                    <h3>Total Production Orders</h3>
-                    <p><?php echo number_format($total_orders); ?></p>
+            <?php for ($i = 0; $i < 8; $i++): ?>
+                <div class="col-md-3 mb-4">
+                    <div class="product-card">
+                        <img src="https://cdn-icons-png.flaticon.com/512/2909/2909767.png" alt="Tepung">
+                        <div class="product-name">Tepung Terigu Protein Tinggi</div>
+                        <p>500 gr</p>
+                        <p>Stok: 100</p>
+                        <button class="btn btn-primary btn-sm">Tambah</button>
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="stat-card">
-                    <h3>Completed Production</h3>
-                    <p><?php echo number_format($completed_orders); ?></p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="stat-card">
-                    <h3>In Progress</h3>
-                    <p><?php echo number_format($in_progress); ?></p>
-                </div>
-            </div>
-        </div>
-
-        <div class="row mt-4">
-            <div class="col-md-12">
-                <div class="dashboard-card">
-                    <h3>Recent Production Orders</h3>
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Customer</th>
-                                <th>Quantity</th>
-                                <th>Status</th>
-                                <th>Created At</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($recent_orders as $order): ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($order['id']); ?></td>
-                                <td><?php echo htmlspecialchars($order['customer_name']); ?></td>
-                                <td><?php echo htmlspecialchars($order['quantity']); ?></td>
-                                <td>
-                                    <span class="badge bg-<?php echo $order['status'] === 'completed' ? 'success' : ($order['status'] === 'processing' ? 'warning' : 'secondary'); ?>">
-                                        <?php echo htmlspecialchars($order['status']); ?>
-                                    </span>
-                                </td>
-                                <td><?php echo date('Y-m-d H:i', strtotime($order['created_at'])); ?></td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <?php endfor; ?>
         </div>
     </div>
+    <div class="overlay" id="confirmationOverlay">
+        <i class="fas fa-check-circle fa-2x mb-2"></i>
+        <p>Produk Telah Ditambahkan Ke Keranjang</p>
+    </div>
+    <script>
+        const buttons = document.querySelectorAll('.btn-primary');
+        const overlay = document.getElementById('confirmationOverlay');
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                overlay.style.display = 'block';
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                }, 1500);
+            });
+        });
+    </script>
 </body>
 </html>
