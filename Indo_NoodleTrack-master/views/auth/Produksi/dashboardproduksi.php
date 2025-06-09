@@ -200,12 +200,12 @@ $user = $result->fetch_assoc();
         <div>
             <h4>indo noodle track.</h4>
             <a class="nav-link" href="dashboardproduksi.php"><i class="fas fa-home"></i> Dashboard</a>
-            <a class="nav-link" href="permintaanmasuk.php"><i class="fas fa-inbox"></i> Permintaan Bahan Baku</a>
+            <a class="nav-link" href="permintaanmasuk.php"><i class="fas fa-shopping-cart"></i> Permintaan Bahan Baku</a>
             <a class="nav-link" href="returbahanbaku.php"><i class="fas fa-undo"></i> Retur Bahan Baku</a>
-            <a class="nav-link" href="monitor.php"><i class="fas fa-eye"></i> Monitoring</a>
+            <a class="nav-link" href="monitor.php"><i class="fas fa-chart-line"></i> Monitoring</a>
             <a class="nav-link" href="riwayat.php"><i class="fas fa-history"></i> Riwayat</a>
+            <a class="nav-link" href="../../../auth/logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </div>
-        <a class="nav-link" href="../../../views/auth/logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
     <div class="content">
         <?php if (isset($_GET['success']) && $_GET['success'] === '1' && isset($_GET['message'])): ?>

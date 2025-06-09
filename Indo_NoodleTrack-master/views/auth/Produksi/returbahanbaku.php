@@ -290,9 +290,9 @@ while ($row = $result->fetch_assoc()) {
         <div class="table-container">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2 style="color:#4a9bb1;">Retur Bahan Baku</h2>
-                <button class="btn-primary" data-bs-toggle="modal" data-bs-target="#addReturnModal">
+                <a href="<?php echo getBaseUrl(); ?>views/auth/Produksi/tambahretur.php" class="btn-primary">
                     <i class="fas fa-plus me-2"></i> Tambah Retur
-                </button>
+                </a>
             </div>
     <?php if (isset($_SESSION['success'])): ?>
         <div class="success-message show">

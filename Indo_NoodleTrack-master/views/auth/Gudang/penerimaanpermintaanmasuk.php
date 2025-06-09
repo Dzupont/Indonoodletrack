@@ -1,3 +1,16 @@
+<?php
+require_once __DIR__ . '/../../../config/database.php';
+require_once __DIR__ . '/../../../config/session.php';
+require_once __DIR__ . '/../../../config/base_url.php';
+
+// Check login and role
+checkLoginAndRedirect();
+if (getCurrentUserRole() !== 'gudang') {
+    header('Location: ' . getBaseUrl() . 'views/auth/login.php');
+    exit();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -18,19 +31,19 @@
             <span class="text-xl font-bold leading-5 text-center">ind0<br>noodle<br>track.</span>
         </div>
         <nav class="flex flex-col gap-4 text-sm font-semibold">
-            <a href="./dashboardgudang.php" class="flex items-center gap-2 hover:bg-white/10 px-4 py-2 rounded-lg">
+            <a href="dashboardgudang.php" class="flex items-center gap-2 hover:bg-white/10 px-4 py-2 rounded-lg">
                 <i class="fas fa-home"></i> Dashboard
             </a>
-            <a href="./penerimaanpermintaanmasuk.php" class="flex items-center gap-2 bg-white text-[#4A9AB7] px-4 py-2 rounded-lg shadow active">
+            <a href="penerimaanpermintaanmasuk.php" class="flex items-center gap-2 bg-white text-[#4A9AB7] px-4 py-2 rounded-lg shadow active">
                 <i class="fas fa-file-invoice"></i> Permintaan Masuk
             </a>
-            <a href="./returmasuk.php" class="flex items-center gap-2 hover:bg-white/10 px-4 py-2 rounded-lg">
+            <a href="returmasuk.php" class="flex items-center gap-2 hover:bg-white/10 px-4 py-2 rounded-lg">
                 <i class="fas fa-sync-alt"></i> Retur Masuk
             </a>
-            <a href="./monitoringgudang.php" class="flex items-center gap-2 hover:bg-white/10 px-4 py-2 rounded-lg">
+            <a href="monitoringgudang.php" class="flex items-center gap-2 hover:bg-white/10 px-4 py-2 rounded-lg">
                 <i class="fas fa-cube"></i> Monitoring
             </a>
-            <a href="./stok-bahan-baku.php" class="flex items-center gap-2 hover:bg-white/10 px-4 py-2 rounded-lg">
+            <a href="stok-bahan-baku.php" class="flex items-center gap-2 hover:bg-white/10 px-4 py-2 rounded-lg">
                 <i class="fas fa-box"></i> Stok
             </a>
             <a href="../../auth/login.php" class="flex items-center gap-2 mt-6 bg-white text-[#4A9AB7] px-4 py-2 rounded-lg shadow hover:opacity-90">
@@ -40,12 +53,14 @@
     </aside>
 
 <?php
-session_start();
-require_once '../../../config/database.php';
+require_once __DIR__ . '/../../../config/database.php';
+require_once __DIR__ . '/../../../config/session.php';
+require_once __DIR__ . '/../../../config/base_url.php';
 
-// Check login & role
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'gudang') {
-    header('Location: ../../login.php');
+// Check login and role
+checkLoginAndRedirect();
+if (getCurrentUserRole() !== 'gudang') {
+    header('Location: ' . getBaseUrl() . 'views/auth/login.php');
     exit();
 }
 

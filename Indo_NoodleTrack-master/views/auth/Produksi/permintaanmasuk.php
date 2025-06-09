@@ -129,7 +129,7 @@ while ($row = $result->fetch_assoc()) {
                 <a href="monitor.php" class="nav-link"><i class="fas fa-eye"></i> Monitoring</a>
                 <a href="riwayat.php" class="nav-link"><i class="fas fa-history"></i> Riwayat</a>
             </div>
-            <a href="../../../views/auth/logout.php" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            <a href="../../../auth/logout.php" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </div>
 
         <div class="main-content w-100">
