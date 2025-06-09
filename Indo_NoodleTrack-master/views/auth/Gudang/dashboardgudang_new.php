@@ -16,8 +16,7 @@ $dashboard = $result->fetch_assoc();
 $sql = "SELECT 
             SUM(CASE WHEN status = 'approved' THEN quantity ELSE 0 END) as total_approved,
             SUM(CASE WHEN status = 'rejected' THEN quantity ELSE 0 END) as total_rejected
-        FROM returns
-        WHERE status IN ('approved', 'rejected')";
+        FROM returns";
 $result = $conn->query($sql);
 $returns_stats = $result->fetch_assoc();
 ?>
@@ -106,12 +105,12 @@ $returns_stats = $result->fetch_assoc();
             <div class="bg-[#EAF6F8] p-4 rounded-lg flex flex-col items-center justify-center">
               <i class="fas fa-check-circle text-2xl mb-2 text-green-600"></i>
               <p class="font-medium">Disetujui</p>
-              <p class="text-2xl font-bold">0</p>
+              <p class="text-2xl font-bold"><?php echo number_format($returns_stats['total_approved']); ?></p>
             </div>
             <div class="bg-[#FBEAEA] p-4 rounded-lg flex flex-col items-center justify-center">
               <i class="fas fa-times-circle text-2xl mb-2 text-red-600"></i>
               <p class="font-medium">Ditolak</p>
-              <p class="text-2xl font-bold">0</p>
+              <p class="text-2xl font-bold"><?php echo number_format($returns_stats['total_rejected']); ?></p>
             </div>
           </div>
         </div>

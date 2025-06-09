@@ -1,59 +1,34 @@
 <?php
-// Load environment variables
-$dotenv = __DIR__ . '/../.env';
-if (file_exists($dotenv)) {
-    $lines = file($dotenv, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    foreach ($lines as $line) {
-        if (strpos($line, '=') !== false) {
-            list($key, $value) = explode('=', $line, 2);
-            putenv(trim($key) . '=' . trim($value));
-        }
-    }
-}
-
 // Database configuration
-define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
-define('DB_USER', getenv('DB_USER') ?: 'root');
-define('DB_PASS', getenv('DB_PASS') ?: '');
-define('DB_NAME', getenv('DB_NAME') ?: 'indonoodle_track');
+define('DB_HOST', '127.0.0.1');
+define('DB_USER', 'root');
+define('DB_PASS', '');
+define('DB_NAME', 'indonoodle_track');
 
 // Function to get database connection
 function getDBConnection() {
     static $conn = null;
     
+    if ($conn !== null) {
+        return $conn;
+    }
+    
     try {
-        // Try multiple connection attempts with different configurations
-        $attempts = [
-            ['host' => DB_HOST, 'port' => 3306],
-            ['host' => '127.0.0.1', 'port' => 3306],
-            ['host' => DB_HOST, 'port' => 3307],
-            ['host' => '127.0.0.1', 'port' => 3307]
-        ];
-
-        foreach ($attempts as $attempt) {
-            try {
-                $conn = new mysqli(
-                    $attempt['host'],
-                    DB_USER,
-                    DB_PASS,
-                    DB_NAME,
-                    $attempt['port']
-                );
-                
-                if ($conn->connect_error) {
-                    throw new Exception("Connection failed: " . $conn->connect_error);
-                }
-                
-                $conn->set_charset("utf8");
-                return $conn;
-            } catch (Exception $e) {
-                error_log("Attempt failed (" . $attempt['host'] . ":" . $attempt['port'] . "): " . $e->getMessage());
-                continue;
-            }
-        }
-
-        throw new Exception("All connection attempts failed");
+        // Try to connect without database name first
+        $conn = new mysqli(DB_HOST, DB_USER, DB_PASS);
         
+        if ($conn->connect_error) {
+            throw new Exception("Connection failed: " . $conn->connect_error);
+        }
+        
+        // Check if database exists, create if not
+        $conn->query("CREATE DATABASE IF NOT EXISTS " . DB_NAME);
+        
+        // Select the database
+        $conn->select_db(DB_NAME);
+        
+        $conn->set_charset("utf8");
+        return $conn;
     } catch (Exception $e) {
         error_log("Database connection error: " . $e->getMessage());
         throw $e;
@@ -167,6 +142,24 @@ try {
         throw new Exception("Error creating returns table: " . $conn->error);
     }
 
+    // Dashboard table
+    $sql = "CREATE TABLE IF NOT EXISTS dashboard (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        retur_bahan_baku INT DEFAULT 0,
+        retur_bahan_baku_rejected INT DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    )";
+    if (!$conn->query($sql)) {
+        throw new Exception("Error creating dashboard table: " . $conn->error);
+    }
+
+    // Insert initial dashboard record
+    $sql = "INSERT INTO dashboard (retur_bahan_baku, retur_bahan_baku_rejected) VALUES (0, 0)";
+    if (!$conn->query($sql)) {
+        throw new Exception("Error inserting initial dashboard record: " . $conn->error);
+    }
+
     // Cart table
     $sql = "CREATE TABLE IF NOT EXISTS cart (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -180,7 +173,7 @@ try {
         UNIQUE KEY unique_cart_item (user_id, bahan_id)
     )";
     if (!$conn->query($sql)) {
-        throw new Exception("Error creating returns table: " . $conn->error);
+        throw new Exception("Error creating cart table: " . $conn->error);
     }
 
 } catch (Exception $e) {

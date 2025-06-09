@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 function requireLogin($admin = false) {
     if (!isset($_SESSION['user_id'])) {

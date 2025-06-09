@@ -274,14 +274,19 @@ $requests = $stmt->get_result();
         // Approve request
         function approveRequest(requestId) {
             if (confirm('Apakah Anda yakin ingin menyetujui permintaan ini?')) {
-                fetch('approve-request.php', {
+                fetch(`<?php echo getBaseUrl(); ?>views/auth/Gudang/approve-request.php`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
                     body: `request_id=${requestId}`
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Response not OK');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
                         alert('Permintaan berhasil disetujui');
@@ -293,7 +298,7 @@ $requests = $stmt->get_result();
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Terjadi kesalahan saat menyetujui permintaan');
+                    alert('Terjadi kesalahan saat menyetujui permintaan. Detail: ' + error.message);
                 });
             }
         }

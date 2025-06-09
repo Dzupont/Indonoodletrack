@@ -1,214 +1,201 @@
 <?php
-require_once __DIR__ . '/../../../config/database.php';
-require_once __DIR__ . '/../../../config/session.php';
-require_once __DIR__ . '/../../../config/base_url.php';
+// Contoh penyimpanan input dan error (simulasi saja)
+$errors = [];
+$old = $_POST ?? [];
 
-// Check session and role
-if (!requireLogin(false) || getCurrentUserRole() !== 'produksi') {
-    header('Location: ' . getBaseUrl() . 'views/auth/login.php');
-    exit();
-}
-
-// Get database connection
-$conn = getDBConnection();
-
-// Get stocks for dropdown
-$stocks_sql = "SELECT id, nama as name, satuan as unit FROM stocks ORDER BY nama";
-$stocks_result = $conn->query($stocks_sql);
-$stocks = [];
-while ($row = $stocks_result->fetch_assoc()) {
-    $stocks[] = $row;
-}
-
-// Process form submission
+// Jika ada submit (POST)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $stock_id = $_POST['stock_id'];
-    $nama = $_POST['nama'];
-    $quantity = $_POST['quantity'];
-    $reason = $_POST['reason'];
-    $returned_by = $_SESSION['user_id'];
-    $approved_by = null;
-    $created_at = date('Y-m-d H:i:s');
-
-    $sql = "INSERT INTO returns (material_id, quantity, reason, returned_by, approved_by, created_at) 
-            VALUES (?, ?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-
-    if ($stmt->execute([$stock_id, $nama, $quantity, $reason, $returned_by, $approved_by, $created_at])) {
-        $update_stock_sql = "UPDATE stocks SET stok = stok + ? WHERE id = ?";
-        $stock_stmt = $conn->prepare($update_stock_sql);
-        $stock_stmt->bind_param("di", $quantity, $stock_id);
-        $stock_stmt->execute();
-
-        $_SESSION['success'] = "Retur berhasil ditambahkan dan stok diperbarui";
-        header('Location: ' . getBaseUrl() . 'views/auth/Produksi/returbahanbaku.php');
-        exit();
-    } else {
-        $_SESSION['error'] = "Gagal menambahkan retur";
+    // Validasi dasar
+    if (empty($_POST['nama_bahanbaku'])) {
+        $errors[] = "Nama Bahan Baku wajib diisi.";
     }
+    if (empty($_POST['jenis_bahanbaku'])) {
+        $errors[] = "Jenis Bahan Baku wajib dipilih.";
+    }
+
+    // Lakukan penyimpanan ke database di sini...
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambah Retur Bahan Baku - Produksi</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <title>Tambah Bahan Baku</title>
     <style>
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f8fafc;
+            font-family: sans-serif;
+            background-color: #f1f5f9;
             margin: 0;
+            padding: 2rem;
         }
-        .sidebar {
-            width: 240px;
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background-color: #5d99ae;
-            padding: 30px 20px;
-            color: white;
-        }
-        .sidebar h4 {
-            font-weight: bold;
-            margin-bottom: 40px;
-            font-size: 20px;
-        }
-        .sidebar .nav-link {
-            color: white;
-            font-size: 14px;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-            transition: 0.3s;
-        }
-        .sidebar .nav-link:hover,
-        .sidebar .nav-link.active {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 6px;
-            padding: 8px 10px;
-        }
-        .main-content {
-            margin-left: 260px;
-            padding: 40px;
-        }
+
         .form-container {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.05);
-            max-width: 600px;
+            background-color: #ffffff;
+            max-width: 800px;
+            margin: auto;
+            padding: 2rem 3rem;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         }
-        .form-container label {
+
+        .form-header {
+            color: #1b6f7a;
+            font-size: 1.5rem;
             font-weight: 600;
-            margin-bottom: 5px;
+            margin-bottom: 2rem;
         }
-        .form-container select,
-        .form-container input,
-        .form-container textarea {
-            font-size: 14px;
+
+        .form-label {
+            display: block;
+            color: #1e293b;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
             border-radius: 8px;
+            padding: 0.75rem;
+            width: 100%;
+            margin-bottom: 1rem;
+            box-sizing: border-box;
         }
-        .form-container .btn {
-            border-radius: 8px;
-            font-weight: 600;
-            padding: 10px 20px;
-        }
-        .btn-secondary {
-            background-color: #6c757d;
+
+        .form-button {
+            background-color: #2e94a6;
+            color: white;
             border: none;
-        }
-        .btn-secondary:hover {
-            background-color: #5a6268;
-        }
-        .btn-primary {
-            background-color: #5d99ae;
-            border: none;
-        }
-        .btn-primary:hover {
-            background-color: #4a7c91;
-        }
-        .alert {
-            padding: 15px;
             border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .form-button:hover {
+            background-color: #267c8c;
+        }
+
+        .form-button-secondary {
+            background-color: white;
+            border: 1px solid #2e94a6;
+            color: #2e94a6;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            margin-right: 1rem;
+            text-decoration: none;
+        }
+
+        .form-button-secondary:hover {
+            background-color: #f0fafa;
+        }
+
+        .error-message {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .flex {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
         }
     </style>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const stockSelect = document.getElementById('stock_id');
-    const namaInput = document.getElementById('nama');
-    
-    stockSelect.addEventListener('change', function() {
-        const selectedOption = stockSelect.options[stockSelect.selectedIndex];
-        const nama = selectedOption.text.split(' (')[0];
-        namaInput.value = nama;
-    });
-});
-</script>
 </head>
 <body>
-    <div class="sidebar">
-        <h4>indo noodle track.</h4>
-        <a class="nav-link" href="<?php echo getBaseUrl(); ?>views/auth/Produksi/dashboardproduksi.php"><i class="fas fa-home"></i> Dashboard</a>
-        <a class="nav-link" href="<?php echo getBaseUrl(); ?>views/auth/Produksi/permintaanmasuk.php"><i class="fas fa-shopping-cart"></i> Permintaan Bahan Baku</a>
-        <a class="nav-link active" href="<?php echo getBaseUrl(); ?>views/auth/Produksi/returbahanbaku.php"><i class="fas fa-undo"></i> Retur Bahan Baku</a>
-        <a class="nav-link" href="<?php echo getBaseUrl(); ?>views/auth/Produksi/monitor.php"><i class="fas fa-chart-line"></i> Monitoring</a>
-        <a class="nav-link" href="<?php echo getBaseUrl(); ?>views/auth/Produksi/riwayat.php"><i class="fas fa-history"></i> Riwayat</a>
-        <a class="nav-link" href="<?php echo getBaseUrl(); ?>views/auth/logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
-    </div>
-    <div class="main-content">
-        <h3 class="mb-4 fw-bold text-secondary">Tambah Retur Bahan Baku</h3>
+    <div class="form-container">
+        <h2 class="form-header">Tambah Bahan Baku Baru</h2>
 
-        <?php if (isset($_SESSION['success'])): ?>
-            <div class="alert alert-success"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
-        <?php endif; ?>
-        <?php if (isset($_SESSION['error'])): ?>
-            <div class="alert alert-danger"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
+        <?php if (!empty($errors)): ?>
+            <div class="error-message">
+                <ul>
+                    <?php foreach ($errors as $error): ?>
+                        <li><?= htmlspecialchars($error) ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
         <?php endif; ?>
 
-        <div class="form-container">
-            <form method="POST">
-                <div class="mb-3">
-                    <label for="stock_id">Bahan Baku</label>
-                    <select name="stock_id" id="stock_id" class="form-select" required>
-                        <option value="">Pilih Bahan Baku</option>
-                        <?php foreach ($stocks as $stock): ?>
-                            <option value="<?php echo $stock['id']; ?>"><?php echo $stock['name'] . " ({$stock['unit']})"; ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+        <form action="/IndoNoodleTrack/Indo_NoodleTrack-master/controllers/store-bahan-baku.php" method="POST" enctype="multipart/form-data">
+            <!-- Nama Bahan Baku -->
+            <label class="form-label" for="nama_bahanbaku">Nama Bahan Baku <span style="color:red">*</span></label>
+            <input class="form-input" type="text" name="nama_bahanbaku" id="nama_bahanbaku" required value="<?= htmlspecialchars($old['nama_bahanbaku'] ?? '') ?>">
 
-                <div class="mb-3">
-                    <label for="nama">Nama Bahan Baku</label>
-                    <input type="text" name="nama" id="nama" class="form-control" required readonly>
-                </div>
+            <!-- Jenis Bahan Baku -->
+            <label class="form-label" for="jenis_bahanbaku">Jenis Bahan Baku <span style="color:red">*</span></label>
+            <select class="form-select" name="jenis_bahanbaku" id="jenis_bahanbaku" required>
+    <option value="">Pilih Jenis</option>
+    <?php
+    $jenisOptions = [
+        'Tepung Terigu',
+        'Tepung Tapioka',
+        'Air',
+        'Garam',
+        'Telur',
+        'Minyak Nabati',
+        'Pewarna Makanan',
+        'Pengawet',
+        'Bumbu Penyedap',
+        'Kemasan Plastik',
+        'Label / Stiker',
+        'Box Karton'
+    ];
+    foreach ($jenisOptions as $jenis) {
+        $selected = ($old['jenis_bahanbaku'] ?? '') === $jenis ? 'selected' : '';
+        echo "<option value=\"$jenis\" $selected>$jenis</option>";
+    }
+    ?>
+</select>
 
-                <div class="mb-3">
-                    <label for="quantity">Jumlah</label>
-                    <input type="number" name="quantity" id="quantity" class="form-control" min="1" required>
-                </div>
 
-                <div class="mb-3">
-                    <label for="reason">Alasan Retur</label>
-                    <textarea name="reason" id="reason" class="form-control" rows="3" required></textarea>
-                </div>
+            <!-- Jumlah Stok -->
+            <label class="form-label" for="stok_bahanbaku">Jumlah Stok</label>
+            <input class="form-input" type="number" name="stok_bahanbaku" id="stok_bahanbaku" min="0" value="<?= htmlspecialchars($old['stok_bahanbaku'] ?? '0') ?>">
 
-                <div class="d-flex justify-content-between">
-                    <a href="<?php echo getBaseUrl(); ?>views/auth/Produksi/returbahanbaku.php" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left me-2"></i> Kembali
-                    </a>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save me-2"></i> Simpan
-                    </button>
-                </div>
-            </form>
-        </div>
+            <!-- Satuan -->
+            <label class="form-label" for="satuan">Satuan</label>
+            <select class="form-select" name="satuan" id="satuan" required>
+                <option value="">Pilih Satuan</option>
+                <option value="kg" <?php echo ($old['satuan'] ?? '') === 'kg' ? 'selected' : ''; ?>>Kilogram (kg)</option>
+                <option value="liter" <?php echo ($old['satuan'] ?? '') === 'liter' ? 'selected' : ''; ?>>Liter (L)</option>
+                <option value="pcs" <?php echo ($old['satuan'] ?? '') === 'pcs' ? 'selected' : ''; ?>>Pieces (pcs)</option>
+            </select>
+
+            <!-- Minimal Stok -->
+            <label class="form-label" for="minimal_stok">Minimal Stok</label>
+            <input class="form-input" type="number" name="minimal_stok" id="minimal_stok" min="0" value="<?php echo htmlspecialchars($old['minimal_stok'] ?? '0'); ?>">
+            <p style="font-size: 0.8rem; color: #6b7280;">Stok minimum yang harus tersedia</p>
+
+
+
+            <!-- Tanggal Expired -->
+            <label class="form-label" for="tanggal_expired">Tanggal Expired</label>
+            <input class="form-input" type="date" name="tanggal_expired" id="tanggal_expired" value="<?= htmlspecialchars($old['tanggal_expired'] ?? '') ?>">
+
+            <!-- Gambar -->
+            <label class="form-label" for="gambar">Gambar</label>
+            <input class="form-input" type="file" name="gambar" id="gambar" accept="image/*">
+            <p style="font-size: 0.8rem; color: #6b7280;">Jika tidak diisi, gambar default akan digunakan sesuai kategori</p>
+
+            <!-- Deskripsi -->
+            <label class="form-label" for="deskripsi">Deskripsi</label>
+            <textarea class="form-textarea" name="deskripsi" id="deskripsi" rows="4"><?php echo htmlspecialchars($old['deskripsi'] ?? ''); ?></textarea>
+            <p style="font-size: 0.8rem; color: #6b7280;">Deskripsi singkat tentang bahan baku</p>
+
+            <!-- Buttons -->
+            <div class="flex" style="margin-top: 2rem;">
+                <a href="../Gudang/stok-bahan-baku.php" class="form-button-secondary">Batal</a>
+                <button type="submit" class="form-button">Simpan</button>
+            </div>
+        </form>
     </div>
 </body>
 </html>

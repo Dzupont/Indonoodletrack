@@ -18,25 +18,9 @@ $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
-$returns_history = array();
+$returns_history = [];
 while ($row = $result->fetch_assoc()) {
     $returns_history[] = $row;
-}
-$stmt->close();
-
-// Get requests history
-$sql = "SELECT r.*, m.name as bahan_baku, m.unit 
-        FROM requests r 
-        LEFT JOIN raw_materials m ON r.material_id = m.id 
-        WHERE r.requested_by = ? 
-        ORDER BY r.created_at DESC";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
-$requests_history = array();
-while ($row = $result->fetch_assoc()) {
-    $requests_history[] = $row;
 }
 $stmt->close();
 ?>
@@ -47,144 +31,155 @@ $stmt->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Riwayat Aktivitas Produksi</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
-            background-color: #f9f9f9;
             font-family: 'Segoe UI', sans-serif;
+            background-color: #f8f9fa;
         }
         .sidebar {
-            width: 250px;
-            height: 100vh;
             position: fixed;
-            top: 0;
             left: 0;
+            top: 0;
+            width: 240px;
+            height: 100vh;
             background-color: #4a9bb1;
             color: white;
-            padding: 20px;
+            padding: 30px 20px;
         }
         .sidebar h4 {
+            font-size: 20px;
             font-weight: bold;
-            font-size: 1.5rem;
-            margin-bottom: 2rem;
+            margin-bottom: 40px;
         }
-        .sidebar .nav-link {
+        .sidebar a {
+            display: block;
             color: white;
             text-decoration: none;
-            display: flex;
-            align-items: center;
-            padding: 10px 15px;
-            border-radius: 8px;
-            margin: 5px 0;
+            margin-bottom: 18px;
+            font-size: 16px;
             transition: all 0.3s ease;
         }
-        .sidebar .nav-link:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            transform: translateX(5px);
-        }
-        .sidebar .nav-link i {
+        .sidebar a i {
             margin-right: 10px;
-            width: 20px;
-            text-align: center;
+        }
+        .sidebar a:hover, .sidebar a.active {
+            color: #e0f7fa;
+            font-weight: bold;
         }
         .content {
-            margin-left: 270px;
-            padding: 30px;
+            margin-left: 240px;
+            padding: 40px;
         }
-        .dashboard-card {
-            background-color: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        .table thead {
-            background-color: #4a9bb1;
-            color: white;
+        .header h2 {
+            color: #3397b9;
+            font-size: 24px;
         }
-        .profile-info {
-            position: absolute;
-            top: 20px;
-            right: 30px;
+        .profile {
             display: flex;
             align-items: center;
         }
-        .profile-info img {
+        .profile img {
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            margin-right: 10px;
+            margin-left: 15px;
+        }
+        .card {
+            margin-top: 30px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        table th, table td {
+            padding: 14px 12px;
+            text-align: left;
+        }
+        table thead {
+            background-color: #4a9bb1;
+            color: white;
         }
         .status-badge {
-            padding: 5px 10px;
-            border-radius: 12px;
-            font-size: 0.9em;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: inline-block;
         }
-        .bg-proses { background-color: #d1ecf1; color: #0c5460; }
-        .bg-ditolak { background-color: #f8d7da; color: #721c24; }
+        .bg-proses {
+            background-color: #e1f0f5;
+            color: #117a8b;
+        }
+        .bg-ditolak {
+            background-color: #fde2e2;
+            color: #a33a3a;
+        }
+        .icon-button {
+            color: #6c757d;
+            text-decoration: none;
+            margin-right: 10px;
+        }
+        .icon-button:hover {
+            color: #343a40;
+        }
+        .text-end {
+            text-align: end;
+        }
     </style>
 </head>
 <body>
-    <div class="d-flex">
-        <div class="sidebar">
-            <div>
-                <h4>indo noodle track.</h4>
-                <a class="nav-link" href="dashboardproduksi.php">
-                    <i class="fas fa-home"></i>
-                    Dashboard
-                </a>
-                <a class="nav-link" href="permintaanmasuk.php">
-                    <i class="fas fa-inbox"></i>
-                    Permintaan Bahan Baku
-                </a>
-                <a class="nav-link" href="returbahanbaku.php">
-                    <i class="fas fa-undo"></i>
-                    Retur Bahan Baku
-                </a>
-                <a class="nav-link" href="monitor.php">
-                    <i class="fas fa-eye"></i>
-                    Monitoring
-                </a>
-                <a class="nav-link active" href="riwayat.php">
-                    <i class="fas fa-history"></i>
-                    Riwayat
-                </a>
-            </div>
-            <a class="nav-link" href="../../../views/auth/logout.php">
-                <i class="fas fa-sign-out-alt"></i>
-                Logout
-            </a>
-        </div>
-        <div class="content">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>Riwayat Aktivitas Produksi</h2>
-                <div class="d-flex align-items-center">
-                    <a href="keranjang.php" class="me-3 text-[#4a9bb1] hover:text-[#2e94a6]">
-                        <i class="fas fa-shopping-cart text-2xl"></i>
-                    </a>
-                    <div class="me-3 text-end">
-                        <strong>Divisi Produksi</strong><br>
-                        User Id : <?php echo htmlspecialchars($_SESSION['user_id']); ?>
-                    </div>
-                    <img src="https://via.placeholder.com/40" class="rounded-circle" alt="User Image">
+    <div class="sidebar">
+        <h4>indo noodle track.</h4>
+        <a href="dashboardproduksi.php"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="permintaanmasuk.php"><i class="fas fa-inbox"></i> Permintaan Masuk</a>
+        <a href="returbahanbaku.php"><i class="fas fa-undo"></i> Retur Bahan Baku</a>
+        <a href="monitor.php"><i class="fas fa-eye"></i> Monitoring</a>
+        <a href="riwayat.php" class="active"><i class="fas fa-history"></i> Riwayat</a>
+        <a href="../../../views/auth/logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+    <div class="content">
+        <div class="header">
+            <h2>Riwayat Aktivitas Produksi</h2>
+            <div class="profile">
+                <div class="text-end">
+                    <div><strong>Divisi Produksi</strong></div>
+                    <div>User id : <?= htmlspecialchars($_SESSION['user_id']) ?></div>
                 </div>
+                <img src="https://via.placeholder.com/40" alt="User Profile">
             </div>
-            <div class="dashboard-card">
-                <h4 class="text-primary fw-bold">Riwayat Aktivitas Produksi</h4>
-                <table class="table mt-4">
-                    <thead>
-                        <tr>
-                            <th>Tanggal Aktivitas</th>
-                            <th>Nama Aktivitas</th>
-                            <th>Status</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+        </div>
+        <div class="card">
+            <h4 style="color: #3397b9; margin-bottom: 20px;">Riwayat Aktivitas Produksi</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tanggal Aktivitas</th>
+                        <th>Nama Aktivitas</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (!empty($returns_history)): ?>
                         <?php foreach ($returns_history as $return): ?>
                             <tr>
-                                <td><?php echo date('d F Y', strtotime($return['created_at'])); ?></td>
-                                <td><?php echo htmlspecialchars($return['reason']); ?></td>
+                                <td><?= date('d F Y', strtotime($return['created_at'])) ?></td>
+                                <td><?= htmlspecialchars($return['reason']) ?></td>
                                 <td>
                                     <?php if ($return['status'] == 'Diproses'): ?>
                                         <span class="status-badge bg-proses">Diproses</span>
@@ -193,17 +188,16 @@ $stmt->close();
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <a href="#" class="text-secondary me-2"><i class="fas fa-copy"></i></a>
-                                    <a href="#" class="text-secondary"><i class="fas fa-trash"></i></a>
+                                    <a href="#" class="icon-button"><i class="fas fa-copy"></i></a>
+                                    <a href="#" class="icon-button"><i class="fas fa-trash"></i></a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
-                        <?php if (empty($returns_history)): ?>
-                            <tr><td colspan="4" class="text-center">Tidak ada riwayat ditemukan.</td></tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
+                    <?php else: ?>
+                        <tr><td colspan="4" class="text-center">Tidak ada riwayat ditemukan.</td></tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
         </div>
     </div>
 </body>
