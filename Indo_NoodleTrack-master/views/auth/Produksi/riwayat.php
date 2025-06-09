@@ -12,6 +12,7 @@ require_once __DIR__ . '/../../../config/database.php';
 $conn = getDBConnection();
 $user_id = $_SESSION['user_id'];
 
+// Get returns history
 $sql = "SELECT * FROM returns WHERE returned_by = ? ORDER BY created_at DESC";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
@@ -20,6 +21,22 @@ $result = $stmt->get_result();
 $returns_history = array();
 while ($row = $result->fetch_assoc()) {
     $returns_history[] = $row;
+}
+$stmt->close();
+
+// Get requests history
+$sql = "SELECT r.*, m.name as bahan_baku, m.unit 
+        FROM requests r 
+        LEFT JOIN raw_materials m ON r.material_id = m.id 
+        WHERE r.requested_by = ? 
+        ORDER BY r.created_at DESC";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$requests_history = array();
+while ($row = $result->fetch_assoc()) {
+    $requests_history[] = $row;
 }
 $stmt->close();
 ?>
@@ -110,38 +127,46 @@ $stmt->close();
 <body>
     <div class="d-flex">
         <div class="sidebar">
-            <h4>indo noodle track.</h4>
-            <a class="nav-link" href="dashboardproduksi.php">
-                <i class="fas fa-home"></i>
-                <span>Dashboard</span>
-            </a>
-            <a class="nav-link" href="permintaanmasuk.php">
-                <i class="fas fa-inbox"></i>
-                <span>Pengajuan Bahan Baku</span>
-            </a>
-            <a class="nav-link" href="returbahanbaku.php">
-                <i class="fas fa-undo"></i>
-                <span>Retur Bahan Baku</span>
-            </a>
-            <a class="nav-link" href="monitor.php">
-                <i class="fas fa-eye"></i>
-                <span>Monitoring</span>
-            </a>
-            <a class="nav-link active" href="riwayat.php">
-                <i class="fas fa-history"></i>
-                <span>Riwayat</span>
-            </a>
+            <div>
+                <h4>indo noodle track.</h4>
+                <a class="nav-link" href="dashboardproduksi.php">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+                <a class="nav-link" href="permintaanmasuk.php">
+                    <i class="fas fa-inbox"></i>
+                    Permintaan Bahan Baku
+                </a>
+                <a class="nav-link" href="returbahanbaku.php">
+                    <i class="fas fa-undo"></i>
+                    Retur Bahan Baku
+                </a>
+                <a class="nav-link" href="monitor.php">
+                    <i class="fas fa-eye"></i>
+                    Monitoring
+                </a>
+                <a class="nav-link active" href="riwayat.php">
+                    <i class="fas fa-history"></i>
+                    Riwayat
+                </a>
+            </div>
             <a class="nav-link" href="../../../views/auth/logout.php">
                 <i class="fas fa-sign-out-alt"></i>
-                <span>Logout</span>
+                Logout
             </a>
         </div>
         <div class="content">
-            <div class="profile-info">
-                <img src="https://via.placeholder.com/40" alt="Profile">
-                <div>
-                    <strong>Divisi Produksi</strong><br>
-                    <small>User id : <?php echo $_SESSION['user_id']; ?></small>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Riwayat Aktivitas Produksi</h2>
+                <div class="d-flex align-items-center">
+                    <a href="keranjang.php" class="me-3 text-[#4a9bb1] hover:text-[#2e94a6]">
+                        <i class="fas fa-shopping-cart text-2xl"></i>
+                    </a>
+                    <div class="me-3 text-end">
+                        <strong>Divisi Produksi</strong><br>
+                        User Id : <?php echo htmlspecialchars($_SESSION['user_id']); ?>
+                    </div>
+                    <img src="https://via.placeholder.com/40" class="rounded-circle" alt="User Image">
                 </div>
             </div>
             <div class="dashboard-card">

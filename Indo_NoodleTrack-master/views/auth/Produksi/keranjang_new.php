@@ -1,3 +1,13 @@
+<?php
+session_start();
+require_once '../../../config/database.php';
+
+// Check if user is logged in and has produksi role
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'produksi') {
+    header('Location: ../../login.php');
+    exit();
+}
+?>
 @extends('layouts.app-layout')
 
 @section('content')

@@ -15,8 +15,101 @@ class GudangController extends Controller
     
     public function stokBahanBaku()
     {
-        // Sample data for bahan baku items
-        $bahanBaku = [
+        // Get all bahan baku from database
+        $conn = getDBConnection();
+        $stmt = $conn->prepare("SELECT * FROM raw_materials ORDER BY nama");
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $bahanBaku = $result->fetch_all(MYSQLI_ASSOC);
+        
+        return view('gudang.stok-bahan-baku', compact('bahanBaku'));
+    }
+    
+    public function storeBahanBaku(Request $request)
+    {
+        $validated = $request->validate([
+            'nama_bahanbaku' => 'required|string|max:100',
+            'jenis_bahanbaku' => 'required|string|max:50',
+            'stok_bahanbaku' => 'required|numeric|min:0',
+            'tanggal_expired' => 'nullable|date',
+            'deskripsi' => 'nullable|string',
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+        ]);
+
+        $conn = getDBConnection();
+        
+        // Generate unique kode based on jenis
+        $kode = $this->generateKode($validated['jenis_bahanbaku']);
+        
+        // Handle gambar upload
+        $gambar = null;
+        if ($request->hasFile('gambar')) {
+            $gambar = $request->file('gambar')->store('bahan-baku', 'public');
+        }
+        
+        // Insert to database
+        $stmt = $conn->prepare("
+            INSERT INTO raw_materials 
+            (kode, nama, jenis, stok, tanggal_expired, deskripsi, gambar, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
+        ");
+        
+        $stmt->bind_param("sssdss", 
+            $kode,
+            $validated['nama_bahanbaku'],
+            $validated['jenis_bahanbaku'],
+            $validated['stok_bahanbaku'],
+            $validated['tanggal_expired'] ?? null,
+            $validated['deskripsi'] ?? '',
+            $gambar
+        );
+        
+        if ($stmt->execute()) {
+            // Log activity
+            $this->logActivity($request->user()->id, 'create', "Menambah bahan baku: {$validated['nama_bahanbaku']}");
+            
+            // Redirect to stok-bahan-baku.php
+            return redirect('../Gudang/stok-bahan-baku.php')
+                ->with('success', 'Bahan baku berhasil ditambahkan');
+        }
+        
+        // Redirect back with input and error if failed
+        return redirect('../Gudang/tambah-bahan-baku.php')
+            ->withInput()
+            ->with('error', 'Gagal menambah bahan baku');
+    }
+    
+    private function generateKode($jenis)
+    {
+        $prefix = strtoupper(substr($jenis, 0, 2));
+        $conn = getDBConnection();
+        
+        $stmt = $conn->prepare("SELECT MAX(CAST(SUBSTRING(kode, 3) AS UNSIGNED)) as last_number 
+                               FROM raw_materials 
+                               WHERE kode LIKE ?");
+        $stmt->bind_param("s", $prefix . '%');
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        
+        $next_number = ($row['last_number'] ?? 0) + 1;
+        return sprintf("%s%03d", $prefix, $next_number);
+    }
+    
+    private function logActivity($user_id, $activity_type, $description)
+    {
+        $conn = getDBConnection();
+        $stmt = $conn->prepare("
+            INSERT INTO activity_logs (user_id, activity_type, description, created_at)
+            VALUES (?, ?, ?, NOW())
+        ");
+        $stmt->bind_param("iss", $user_id, $activity_type, $description);
+        $stmt->execute();
+    }
+    
+    // Sample data for bahan baku items
+    private function getSampleData() {
+        return [
             // Bahan Baku Utama
             [
                 'id' => 1,

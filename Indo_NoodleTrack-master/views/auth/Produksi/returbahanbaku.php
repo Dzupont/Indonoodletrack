@@ -27,6 +27,16 @@
             font-size: 1.5rem;
             margin-bottom: 2rem;
         }
+        <?php 
+        session_start();
+        require_once '../../../config/database.php';
+
+        // Check if user is logged in and has produksi role
+        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'produksi') {
+            header('Location: ../../login.php');
+            exit();
+        }
+        ?>
         .sidebar .nav-link {
             color: white;
             text-decoration: none;
@@ -82,30 +92,32 @@
 </head>
 <body>
     <div class="sidebar">
-        <h4>indo noodle track.</h4>
-        <a class="nav-link" href="dashboardproduksi.php">
-            <i class="fas fa-home"></i>
-            <span>Dashboard</span>
-        </a>
-        <a class="nav-link" href="permintaanmasuk.php">
-            <i class="fas fa-inbox"></i>
-            <span>Pengajuan Bahan Baku</span>
-        </a>
-        <a class="nav-link active" href="returbahanbaku.php">
-            <i class="fas fa-undo"></i>
-            <span>Retur Bahan Baku</span>
-        </a>
-        <a class="nav-link" href="monitor.php">
-            <i class="fas fa-eye"></i>
-            <span>Monitoring</span>
-        </a>
-        <a class="nav-link" href="riwayat.php">
-            <i class="fas fa-history"></i>
-            <span>Riwayat</span>
-        </a>
+        <div>
+            <h4>indo noodle track.</h4>
+            <a class="nav-link" href="dashboardproduksi.php">
+                <i class="fas fa-home"></i>
+                Dashboard
+            </a>
+            <a class="nav-link" href="permintaanmasuk.php">
+                <i class="fas fa-inbox"></i>
+                Permintaan Bahan Baku
+            </a>
+            <a class="nav-link active" href="returbahanbaku.php">
+                <i class="fas fa-undo"></i>
+                Retur Bahan Baku
+            </a>
+            <a class="nav-link" href="monitor.php">
+                <i class="fas fa-eye"></i>
+                Monitoring
+            </a>
+            <a class="nav-link" href="riwayat.php">
+                <i class="fas fa-history"></i>
+                Riwayat
+            </a>
+        </div>
         <a class="nav-link" href="../../../views/auth/logout.php">
             <i class="fas fa-sign-out-alt"></i>
-            <span>Logout</span>
+            Logout
         </a>
     </div>
 

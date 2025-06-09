@@ -92,19 +92,23 @@ try {
         throw new Exception("Error creating activity_logs table: " . $conn->error);
     }
 
-    // Raw materials table
-    $sql = "CREATE TABLE IF NOT EXISTS raw_materials (
+    // Stocks table
+    $sql = "CREATE TABLE IF NOT EXISTS stocks (
         id INT AUTO_INCREMENT PRIMARY KEY,
         kode VARCHAR(20) NOT NULL UNIQUE,
         nama VARCHAR(100) NOT NULL,
+        jenis VARCHAR(50) NOT NULL,
         satuan VARCHAR(20) NOT NULL,
         stok DECIMAL(10,2) NOT NULL DEFAULT 0,
+        tanggal_expired DATE NULL,
+        deskripsi TEXT,
+        gambar VARCHAR(255),
         minimal_stok DECIMAL(10,2) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     )";
     if (!$conn->query($sql)) {
-        throw new Exception("Error creating raw_materials table: " . $conn->error);
+        throw new Exception("Error creating stocks table: " . $conn->error);
     }
 
     // Requests table
@@ -133,6 +137,22 @@ try {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (material_id) REFERENCES raw_materials(id) ON DELETE CASCADE,
         FOREIGN KEY (returned_by) REFERENCES users(id) ON DELETE CASCADE
+    )";
+    if (!$conn->query($sql)) {
+        throw new Exception("Error creating returns table: " . $conn->error);
+    }
+
+    // Cart table
+    $sql = "CREATE TABLE IF NOT EXISTS cart (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        bahan_id INT NOT NULL,
+        quantity DECIMAL(10,2) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (bahan_id) REFERENCES stocks(id) ON DELETE CASCADE,
+        UNIQUE KEY unique_cart_item (user_id, bahan_id)
     )";
     if (!$conn->query($sql)) {
         throw new Exception("Error creating returns table: " . $conn->error);

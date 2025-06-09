@@ -1,3 +1,4 @@
+
 <?php
 session_start();
 
@@ -7,8 +8,58 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'produksi') {
     exit();
 }
 
-// Include database connection
-require_once __DIR__ . '/../../../config/database.php';
+require_once '../../../config/database.php';
+
+// Get database connection
+$conn = getDBConnection();
+
+// Get status counts
+$statusCounts = [
+    'pending' => 0,
+    'approved' => 0,
+    'rejected' => 0
+];
+
+// Query to get status counts
+$sql = "SELECT status, COUNT(*) as count 
+        FROM requests 
+        WHERE requested_by = ? 
+        GROUP BY status";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $_SESSION['user_id']);
+$stmt->execute();
+$result = $stmt->get_result();
+
+while ($row = $result->fetch_assoc()) {
+    $statusCounts[$row['status']] = $row['count'];
+}
+$stmt->close();
+
+// Get recent requests
+$sql = "SELECT r.*, m.name as bahan_baku, m.unit 
+        FROM requests r 
+        LEFT JOIN raw_materials m ON r.material_id = m.id 
+        WHERE r.requested_by = ? 
+        ORDER BY r.created_at DESC 
+        LIMIT 5";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $_SESSION['user_id']);
+$stmt->execute();
+$recentRequests = $stmt->get_result();
+$stmt->close();
+
+// Get recent returns
+$sql = "SELECT r.*, m.name as bahan_baku, m.unit 
+        FROM returns r 
+        LEFT JOIN raw_materials m ON r.material_id = m.id 
+        WHERE r.returned_by = ? 
+        ORDER BY r.created_at DESC 
+        LIMIT 5";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $_SESSION['user_id']);
+$stmt->execute();
+$recentReturns = $stmt->get_result();
+$stmt->close();
 
 // Get user data
 $user_id = $_SESSION['user_id'];
@@ -35,8 +86,8 @@ $user = $result->fetch_assoc();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Permintaan Bahan Baku - IndoNoodle Track</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -44,61 +95,77 @@ $user = $result->fetch_assoc();
             margin: 0;
         }
         .sidebar {
-            width: 250px;
+            width: 230px;
             height: 100vh;
             position: fixed;
             top: 0;
             left: 0;
             background-color: #4a9bb1;
             color: white;
-            padding: 20px;
+            padding: 25px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
         .sidebar h4 {
             font-weight: bold;
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             margin-bottom: 2rem;
         }
-        .sidebar .nav-link {
+        .nav-link {
             color: white;
-            text-decoration: none;
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            border-radius: 10px;
+            transition: 0.3s;
             display: flex;
             align-items: center;
-            padding: 10px 15px;
-            border-radius: 8px;
-            margin: 5px 0;
-            transition: all 0.3s ease;
         }
-        .sidebar .nav-link:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            transform: translateX(5px);
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.15);
         }
-        .sidebar .nav-link i {
+        .nav-link i {
             margin-right: 10px;
-            width: 20px;
-            text-align: center;
         }
         .content {
-            margin-left: 270px;
+            margin-left: 250px;
             padding: 30px;
         }
+        .tabs {
+            margin-bottom: 30px;
+        }
+        .tabs button {
+            border: none;
+            background-color: #e3f2f9;
+            margin-right: 10px;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            color: #4a9bb1;
+        }
+        .tabs button.active {
+            background-color: #4a9bb1;
+            color: white;
+        }
         .product-card {
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            padding: 15px;
             background-color: white;
+            border-radius: 16px;
+            padding: 20px;
             text-align: center;
-            transition: box-shadow 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: 0.3s;
         }
         .product-card:hover {
-            box-shadow: 0px 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
         }
         .product-card img {
-            max-width: 100%;
-            height: auto;
+            height: 100px;
+            object-fit: contain;
+            margin-bottom: 10px;
         }
         .product-name {
             font-weight: bold;
-            margin-top: 10px;
+            color: #4a9bb1;
         }
         .overlay {
             position: fixed;
@@ -107,68 +174,96 @@ $user = $result->fetch_assoc();
             transform: translate(-50%, -50%);
             background-color: #2e94a6;
             color: white;
-            padding: 30px;
+            padding: 30px 50px;
             border-radius: 15px;
             text-align: center;
             display: none;
-        }
-        .tabs {
-            margin-bottom: 20px;
-        }
-        .tabs button {
-            border: none;
-            background-color: #e3f2f9;
-            margin-right: 10px;
-            padding: 10px 20px;
-            border-radius: 10px;
-            cursor: pointer;
-        }
-        .tabs button.active {
-            background-color: #2e94a6;
-            color: white;
+            z-index: 9999;
         }
     </style>
 </head>
 <body>
     <div class="sidebar">
-        <h4>indo noodle track.</h4>
-        <a class="nav-link" href="dashboardproduksi.php"><i class="fas fa-home me-2"></i> Dashboard</a>
-        <a class="nav-link" href="permintaanmasuk.php"><i class="fas fa-inbox me-2"></i> Permintaan Bahan Baku</a>
-        <a class="nav-link" href="returbahanbaku.php"><i class="fas fa-undo me-2"></i> Retur Bahan Baku</a>
-        <a class="nav-link" href="monitor.php"><i class="fas fa-eye me-2"></i> Monitoring</a>
-        <a class="nav-link" href="riwayat.php"><i class="fas fa-history me-2"></i> Riwayat</a>
-        <a class="nav-link" href="../../../views/auth/logout.php"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
+        <div>
+            <h4>indo noodle track.</h4>
+            <a class="nav-link" href="dashboardproduksi.php"><i class="fas fa-home"></i> Dashboard</a>
+            <a class="nav-link" href="permintaanmasuk.php"><i class="fas fa-inbox"></i> Permintaan Bahan Baku</a>
+            <a class="nav-link" href="returbahanbaku.php"><i class="fas fa-undo"></i> Retur Bahan Baku</a>
+            <a class="nav-link" href="monitor.php"><i class="fas fa-eye"></i> Monitoring</a>
+            <a class="nav-link" href="riwayat.php"><i class="fas fa-history"></i> Riwayat</a>
+        </div>
+        <a class="nav-link" href="../../../views/auth/logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
     <div class="content">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>Permintaan Bahan Baku</h2>
+            <h2 style="color:#4a9bb1;">Dashboard</h2>
             <div class="d-flex align-items-center">
+                <a href="keranjang.php" class="me-3 text-[#4a9bb1] hover:text-[#2e94a6]">
+                    <i class="fas fa-shopping-cart text-2xl"></i>
+                </a>
                 <div class="me-3 text-end">
-                    <strong>Divisi Gudang</strong><br>
-                    User Id : 02018999
+                    <strong>Divisi Produksi</strong><br>
+                    User Id : <?php echo htmlspecialchars($_SESSION['user_id']); ?>
                 </div>
                 <img src="https://via.placeholder.com/40" class="rounded-circle" alt="User Image">
             </div>
         </div>
-        <div class="tabs">
-            <button class="active">Bahan Baku Utama</button>
-            <button>Bahan Tambahan</button>
-            <button>Bumbu & Perisa</button>
-            <button>Perlengkapan Kemasan</button>
-            <button>Bahan Penolong Lain</button>
+        <div class="tabs" id="categoryTabs">
+            <button class="active" data-category="all">Semua</button>
+            <button data-category="bahan_utama">Bahan Baku Utama</button>
+            <button data-category="bahan_tambahan">Bahan Tambahan</button>
+            <button data-category="bumbu">Bumbu & Perisa</button>
+            <button data-category="kemasan">Perlengkapan Kemasan</button>
+            <button data-category="penolong">Bahan Penolong Lain</button>
         </div>
-        <div class="row">
-            <?php for ($i = 0; $i < 8; $i++): ?>
-                <div class="col-md-3 mb-4">
-                    <div class="product-card">
-                        <img src="https://cdn-icons-png.flaticon.com/512/2909/2909767.png" alt="Tepung">
-                        <div class="product-name">Tepung Terigu Protein Tinggi</div>
-                        <p>500 gr</p>
-                        <p>Stok: 100</p>
-                        <button class="btn btn-primary btn-sm">Tambah</button>
+        
+        <div class="row" id="productsContainer">
+            <?php
+            // Query to get all stocks with their categories
+            $sql = "SELECT s.*, 
+                    CASE 
+                        WHEN s.jenis = 'bahan_utama' THEN 'Bahan Baku Utama'
+                        WHEN s.jenis = 'bahan_tambahan' THEN 'Bahan Tambahan'
+                        WHEN s.jenis = 'bumbu' THEN 'Bumbu & Perisa'
+                        WHEN s.jenis = 'kemasan' THEN 'Perlengkapan Kemasan'
+                        ELSE 'Bahan Penolong Lain'
+                    END as category_name,
+                    s.gambar as image_path
+                    FROM stocks s
+                    ORDER BY s.jenis, s.nama";
+            
+            $result = $conn->query($sql);
+            
+            if ($result && $result->num_rows > 0) {
+                while ($row = $result->fetch_assoc()) {
+                    $imagePath = $row['image_path'] ? '../../public/images/bahan-baku/' . $row['image_path'] : 'https://cdn-icons-png.flaticon.com/512/2909/2909767.png';
+                    ?>
+                    <div class="col-md-3 mb-4" data-category="<?php echo htmlspecialchars($row['jenis']); ?>">
+                        <div class="product-card">
+                            <img src="<?php echo htmlspecialchars($imagePath); ?>" alt="<?php echo htmlspecialchars($row['nama']); ?>">
+                            <div class="product-name"><?php echo htmlspecialchars($row['nama']); ?></div>
+                            <p><?php echo htmlspecialchars($row['satuan']); ?></p>
+                            <p>Stok: <?php echo htmlspecialchars($row['stok']); ?></p>
+                            <?php if ($row['tanggal_expired']): ?>
+                            <p class="text-sm text-gray-500">Exp: <?php echo htmlspecialchars($row['tanggal_expired']); ?></p>
+                            <?php endif; ?>
+                            <form action="add-to-cart.php" method="POST" class="add-to-cart-form">
+                                <input type="hidden" name="bahan_id" value="<?php echo htmlspecialchars($row['id']); ?>">
+                                <input type="hidden" name="bahan_nama" value="<?php echo htmlspecialchars($row['nama']); ?>">
+                                <input type="hidden" name="bahan_satuan" value="<?php echo htmlspecialchars($row['satuan']); ?>">
+                                <div class="flex items-center gap-2">
+                                    <input type="number" name="quantity" value="1" min="1" class="form-control w-24" required>
+                                    <button type="submit" class="btn btn-sm btn-primary">Tambah</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                </div>
-            <?php endfor; ?>
+                    <?php
+                }
+            } else {
+                echo '<div class="col-12"><p class="text-center text-gray-500">Tidak ada bahan baku yang tersedia.</p></div>';
+            }
+            ?>
         </div>
     </div>
     <div class="overlay" id="confirmationOverlay">
@@ -176,15 +271,53 @@ $user = $result->fetch_assoc();
         <p>Produk Telah Ditambahkan Ke Keranjang</p>
     </div>
     <script>
-        const buttons = document.querySelectorAll('.btn-primary');
-        const overlay = document.getElementById('confirmationOverlay');
+        // Category filtering
+        document.querySelectorAll('#categoryTabs button').forEach(button => {
+            button.addEventListener('click', function() {
+                const category = this.dataset.category;
+                document.querySelectorAll('#categoryTabs button').forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                
+                const products = document.querySelectorAll('#productsContainer > div');
+                products.forEach(product => {
+                    if (category === 'all' || product.dataset.category === category) {
+                        product.style.display = 'block';
+                    } else {
+                        product.style.display = 'none';
+                    }
+                });
+            });
+        });
 
-        buttons.forEach(button => {
-            button.addEventListener('click', () => {
-                overlay.style.display = 'block';
-                setTimeout(() => {
-                    overlay.style.display = 'none';
-                }, 1500);
+        // Add to cart form handling
+        document.querySelectorAll('.add-to-cart-form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Submit the form normally
+                form.submit();
+            });
+        });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const overlay = document.getElementById('confirmationOverlay');
+                        overlay.innerHTML = `
+                            <i class="fas fa-check-circle fa-2x mb-2"></i>
+                            <p>${data.message}</p>
+                        `;
+                        overlay.style.display = 'block';
+                        setTimeout(() => {
+                            overlay.style.display = 'none';
+                        }, 1500);
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Terjadi kesalahan saat menambahkan ke keranjang');
+                });
             });
         });
     </script>

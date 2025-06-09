@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once '../../../config/database.php';
 
 // Check if user is logged in and has produksi role
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'produksi') {
@@ -120,22 +121,30 @@ while ($row = $result->fetch_assoc()) {
 <body>
     <div class="d-flex">
         <div class="sidebar">
-            <h4>indo noodle track.</h4>
-            <a href="dashboardproduksi.php" class="nav-link"><i class="fas fa-home"></i>Dashboard</a>
-            <a href="permintaanmasuk.php" class="nav-link active"><i class="fas fa-inbox"></i>Permintaan Bahan Baku</a>
-            <a href="returbahanbaku.php" class="nav-link"><i class="fas fa-undo"></i>Retur Bahan Baku</a>
-            <a href="monitor.php" class="nav-link"><i class="fas fa-eye"></i>Monitoring</a>
-            <a href="riwayat.php" class="nav-link"><i class="fas fa-history"></i>Riwayat</a>
-            <a href="../../../views/auth/logout.php" class="nav-link"><i class="fas fa-sign-out-alt"></i>Logout</a>
+            <div>
+                <h4>indo noodle track.</h4>
+                <a href="dashboardproduksi.php" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
+                <a href="permintaanmasuk.php" class="nav-link active"><i class="fas fa-inbox"></i> Permintaan Bahan Baku</a>
+                <a href="returbahanbaku.php" class="nav-link"><i class="fas fa-undo"></i> Retur Bahan Baku</a>
+                <a href="monitor.php" class="nav-link"><i class="fas fa-eye"></i> Monitoring</a>
+                <a href="riwayat.php" class="nav-link"><i class="fas fa-history"></i> Riwayat</a>
+            </div>
+            <a href="../../../views/auth/logout.php" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </div>
 
         <div class="main-content w-100">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>Permintaan Bahan Baku</h2>
-                <div class="profile">
-                    <p class="mb-0">Divisi Produksi</p>
-                    <small>User ID: <?php echo $_SESSION['user_id']; ?></small>
+                <div class="d-flex align-items-center">
+                    <a href="keranjang.php" class="me-3 text-[#4a9bb1] hover:text-[#2e94a6]">
+                        <i class="fas fa-shopping-cart text-2xl"></i>
+                    </a>
+                    <div class="me-3 text-end">
+                        <strong>Divisi Produksi</strong><br>
+                        User Id : <?php echo htmlspecialchars($_SESSION['user_id']); ?>
+                    </div>
+                    <img src="https://via.placeholder.com/40" class="rounded-circle" alt="User Image">
                 </div>
+                <h2>Permintaan Bahan Baku</h2>
             </div>
 
             <div class="alert alert-info mb-4">

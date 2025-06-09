@@ -1,88 +1,201 @@
-@extends('layouts.app-layout')
+<?php
+// Contoh penyimpanan input dan error (simulasi saja)
+$errors = [];
+$old = $_POST ?? [];
 
-@section('header', 'Tambah Bahan Baku')
+// Jika ada submit (POST)
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Validasi dasar
+    if (empty($_POST['nama_bahanbaku'])) {
+        $errors[] = "Nama Bahan Baku wajib diisi.";
+    }
+    if (empty($_POST['jenis_bahanbaku'])) {
+        $errors[] = "Jenis Bahan Baku wajib dipilih.";
+    }
 
-@section('content')
-<div class="bg-white rounded-lg shadow-md p-6 max-w-4xl mx-auto">
-    <h2 class="text-2xl font-bold text-primary mb-6">Tambah Bahan Baku Baru</h2>
-    
-    <form action="{{ route('gudang.bahan-baku.store') }}" method="POST" enctype="multipart/form-data">
-        @csrf
-        
-        @if($errors->any())
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-            <ul class="list-disc pl-5">
-                @foreach($errors->all() as $error)
-                <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-        @endif
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    // Lakukan penyimpanan ke database di sini...
+}
+?>
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Tambah Bahan Baku</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f1f5f9;
+            margin: 0;
+            padding: 2rem;
+        }
+
+        .form-container {
+            background-color: #ffffff;
+            max-width: 800px;
+            margin: auto;
+            padding: 2rem 3rem;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-header {
+            color: #1b6f7a;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+        }
+
+        .form-label {
+            display: block;
+            color: #1e293b;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 0.75rem;
+            width: 100%;
+            margin-bottom: 1rem;
+            box-sizing: border-box;
+        }
+
+        .form-button {
+            background-color: #2e94a6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .form-button:hover {
+            background-color: #267c8c;
+        }
+
+        .form-button-secondary {
+            background-color: white;
+            border: 1px solid #2e94a6;
+            color: #2e94a6;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            margin-right: 1rem;
+            text-decoration: none;
+        }
+
+        .form-button-secondary:hover {
+            background-color: #f0fafa;
+        }
+
+        .error-message {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .flex {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2 class="form-header">Tambah Bahan Baku Baru</h2>
+
+        <?php if (!empty($errors)): ?>
+            <div class="error-message">
+                <ul>
+                    <?php foreach ($errors as $error): ?>
+                        <li><?= htmlspecialchars($error) ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        <?php endif; ?>
+
+        <form action="/IndoNoodleTrack/Indo_NoodleTrack-master/controllers/store-bahan-baku.php" method="POST" enctype="multipart/form-data">
             <!-- Nama Bahan Baku -->
-            <div>
-                <label for="nama_bahanbaku" class="block text-sm font-medium text-gray-700 mb-1">Nama Bahan Baku <span class="text-red-500">*</span></label>
-                <input type="text" name="nama_bahanbaku" id="nama_bahanbaku" value="{{ old('nama_bahanbaku') }}" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
-            </div>
-            
+            <label class="form-label" for="nama_bahanbaku">Nama Bahan Baku <span style="color:red">*</span></label>
+            <input class="form-input" type="text" name="nama_bahanbaku" id="nama_bahanbaku" required value="<?= htmlspecialchars($old['nama_bahanbaku'] ?? '') ?>">
+
             <!-- Jenis Bahan Baku -->
-            <div>
-                <label for="jenis_bahanbaku" class="block text-sm font-medium text-gray-700 mb-1">Jenis Bahan Baku <span class="text-red-500">*</span></label>
-                <select name="jenis_bahanbaku" id="jenis_bahanbaku" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
-                    <option value="">Pilih Jenis</option>
-                    @foreach($jenisOptions as $jenis)
-                    <option value="{{ $jenis }}" {{ old('jenis_bahanbaku') == $jenis ? 'selected' : '' }}>{{ $jenis }}</option>
-                    @endforeach
-                </select>
-            </div>
-            
-            <!-- Jumlah Stok Barang -->
-            <div>
-                <label for="stok_bahanbaku" class="block text-sm font-medium text-gray-700 mb-1">Jumlah Stok Barang <span class="text-red-500">*</span></label>
-                <input type="number" name="stok_bahanbaku" id="stok_bahanbaku" value="{{ old('stok_bahanbaku', 0) }}" required min="0" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
-            </div>
-            
-            <!-- Satuan (hidden) -->
-            <div class="hidden">
-                <input type="hidden" name="satuan" id="satuan" value="item" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
-            </div>
-            
-            <!-- Harga -->
-            <div>
-                <label for="harga" class="block text-sm font-medium text-gray-700 mb-1">Harga</label>
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <span class="text-gray-500">Rp</span>
-                    </div>
-                    <input type="number" name="harga" id="harga" value="{{ old('harga') }}" class="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="0">
-                </div>
-            </div>
-            
+            <label class="form-label" for="jenis_bahanbaku">Jenis Bahan Baku <span style="color:red">*</span></label>
+            <select class="form-select" name="jenis_bahanbaku" id="jenis_bahanbaku" required>
+    <option value="">Pilih Jenis</option>
+    <?php
+    $jenisOptions = [
+        'Tepung Terigu',
+        'Tepung Tapioka',
+        'Air',
+        'Garam',
+        'Telur',
+        'Minyak Nabati',
+        'Pewarna Makanan',
+        'Pengawet',
+        'Bumbu Penyedap',
+        'Kemasan Plastik',
+        'Label / Stiker',
+        'Box Karton'
+    ];
+    foreach ($jenisOptions as $jenis) {
+        $selected = ($old['jenis_bahanbaku'] ?? '') === $jenis ? 'selected' : '';
+        echo "<option value=\"$jenis\" $selected>$jenis</option>";
+    }
+    ?>
+</select>
+
+
+            <!-- Jumlah Stok -->
+            <label class="form-label" for="stok_bahanbaku">Jumlah Stok</label>
+            <input class="form-input" type="number" name="stok_bahanbaku" id="stok_bahanbaku" min="0" value="<?= htmlspecialchars($old['stok_bahanbaku'] ?? '0') ?>">
+
+            <!-- Satuan -->
+            <label class="form-label" for="satuan">Satuan</label>
+            <select class="form-select" name="satuan" id="satuan" required>
+                <option value="">Pilih Satuan</option>
+                <option value="kg" <?php echo ($old['satuan'] ?? '') === 'kg' ? 'selected' : ''; ?>>Kilogram (kg)</option>
+                <option value="liter" <?php echo ($old['satuan'] ?? '') === 'liter' ? 'selected' : ''; ?>>Liter (L)</option>
+                <option value="pcs" <?php echo ($old['satuan'] ?? '') === 'pcs' ? 'selected' : ''; ?>>Pieces (pcs)</option>
+            </select>
+
+            <!-- Minimal Stok -->
+            <label class="form-label" for="minimal_stok">Minimal Stok</label>
+            <input class="form-input" type="number" name="minimal_stok" id="minimal_stok" min="0" value="<?php echo htmlspecialchars($old['minimal_stok'] ?? '0'); ?>">
+            <p style="font-size: 0.8rem; color: #6b7280;">Stok minimum yang harus tersedia</p>
+
+
+
             <!-- Tanggal Expired -->
-            <div>
-                <label for="tanggal_expired" class="block text-sm font-medium text-gray-700 mb-1">Tanggal Expired</label>
-                <input type="date" name="tanggal_expired" id="tanggal_expired" value="{{ old('tanggal_expired') }}" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
-            </div>
-            
+            <label class="form-label" for="tanggal_expired">Tanggal Expired</label>
+            <input class="form-input" type="date" name="tanggal_expired" id="tanggal_expired" value="<?= htmlspecialchars($old['tanggal_expired'] ?? '') ?>">
+
             <!-- Gambar -->
-            <div class="md:col-span-2">
-                <label for="gambar" class="block text-sm font-medium text-gray-700 mb-1">Gambar</label>
-                <input type="file" name="gambar" id="gambar" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" accept="image/*">
-                <p class="text-xs text-gray-500 mt-1">Jika tidak diisi, gambar default akan digunakan sesuai kategori</p>
-            </div>
-            
+            <label class="form-label" for="gambar">Gambar</label>
+            <input class="form-input" type="file" name="gambar" id="gambar" accept="image/*">
+            <p style="font-size: 0.8rem; color: #6b7280;">Jika tidak diisi, gambar default akan digunakan sesuai kategori</p>
+
             <!-- Deskripsi -->
-            <div class="md:col-span-2">
-                <label for="deskripsi" class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
-                <textarea name="deskripsi" id="deskripsi" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">{{ old('deskripsi') }}</textarea>
+            <label class="form-label" for="deskripsi">Deskripsi</label>
+            <textarea class="form-textarea" name="deskripsi" id="deskripsi" rows="4"><?php echo htmlspecialchars($old['deskripsi'] ?? ''); ?></textarea>
+            <p style="font-size: 0.8rem; color: #6b7280;">Deskripsi singkat tentang bahan baku</p>
+
+            <!-- Buttons -->
+            <div class="flex" style="margin-top: 2rem;">
+                <a href="../Gudang/stok-bahan-baku.php" class="form-button-secondary">Batal</a>
+                <button type="submit" class="form-button">Simpan</button>
             </div>
-        </div>
-        
-        <div class="flex justify-end space-x-4 mt-8">
-            <a href="{{ route('gudang.stok-bahan-baku') }}" class="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition">Batal</a>
-            <button type="submit" class="px-6 py-2 bg-primary text-white rounded-md hover:bg-primary-dark transition">Simpan</button>
-        </div>
-    </form>
-</div>
-@endsection
+        </form>
+    </div>
+</body>
+</html>

@@ -8,26 +8,52 @@ $laporan = [
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-  <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1" name="viewport"/>
-  <title>Laporan 2</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
-  <style>
-    body { font-family: "Poppins", sans-serif; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Laporan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: "Poppins", sans-serif; background-color: #F6F6F6; }
+        .sidebar { background-color: #3C9BA2; }
+        .active-link { background-color: white; color: #3C9BA2; border-radius: 12px; }
+    </style>
 </head>
-<body class="bg-[#F5F9FA] min-h-screen flex">
-  <!-- Sidebar -->
-  <aside class="bg-[#0D8B9E] w-64 min-h-screen rounded-tr-[40px] rounded-br-[40px] flex flex-col px-6 py-8 text-white relative">
-    <!-- Konten sidebar -->
-  </aside>
+<body class="bg-[#f5f5f5] text-[#333]">
 
-  <!-- Main content -->
-  <main class="flex-1 p-10">
+<div class="flex min-h-screen">
+
+    <!-- Sidebar -->
+    <aside class="w-64 sidebar text-white p-6 rounded-tr-[30px] rounded-br-[30px]">
+        <div class="text-center mb-12">
+            <div class="text-2xl font-bold leading-6">ind0<br>noodle<br>track.</div>
+        </div>
+        <nav class="flex flex-col gap-4">
+            <a href="dashboardmanager.php" class="active-link px-4 py-2 font-semibold text-center">Dashboard</a>
+
+            <!-- Tombol Laporan -->
+            <a href="fiturlaporan.php" class="w-full bg-white text-[#3C9BA2] px-4 py-2 text-center font-semibold rounded-lg hover:bg-[#d8f2f2] transition duration-300">
+                Laporan
+            </a>
+
+            <!-- Filter -->
+            <div class="px-2 mt-6">
+                <input type="text" placeholder="Bulan..." class="w-full mb-2 px-3 py-2 rounded-md text-black text-sm">
+                <input type="text" placeholder="Tahun..." class="w-full mb-2 px-3 py-2 rounded-md text-black text-sm">
+                <button class="w-full bg-white text-[#3C9BA2] font-semibold px-3 py-2 rounded-md hover:bg-[#d8f2f2] transition">Cari</button>
+            </div>
+
+            <!-- Logout -->
+            <a href="../../auth/login.php" class="mt-10 w-full bg-white text-[#3C9BA2] px-4 py-2 text-center font-semibold rounded-lg hover:bg-[#d8f2f2] transition duration-300">
+                Keluar
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-10">
     <header class="flex justify-between items-center mb-10">
       <h1 class="text-[#0D8B9E] font-extrabold text-[28px] leading-[28px] select-none">LAPORAN</h1>
       <div class="flex items-center gap-4">
