@@ -87,6 +87,19 @@ $user = $result->fetch_assoc();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Permintaan Bahan Baku - IndoNoodle Track</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            display: none;
+        }
+        .success-message.show {
+            display: block;
+        }
+    </style>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -195,6 +208,12 @@ $user = $result->fetch_assoc();
         <a class="nav-link" href="../../../views/auth/logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
     <div class="content">
+        <?php if (isset($_GET['success']) && $_GET['success'] === '1' && isset($_GET['message'])): ?>
+            <div class="success-message show">
+                <i class="fas fa-check-circle me-2"></i>
+                <?php echo htmlspecialchars($_GET['message']); ?>
+            </div>
+        <?php endif; ?>
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 style="color:#4a9bb1;">Dashboard</h2>
             <div class="d-flex align-items-center">
@@ -303,8 +322,8 @@ $user = $result->fetch_assoc();
                     if (data.success) {
                         const overlay = document.getElementById('confirmationOverlay');
                         overlay.innerHTML = `
-                            <i class="fas fa-check-circle fa-2x mb-2"></i>
-                            <p>${data.message}</p>
+                            <i class="fas fa-check-circle fa-2x mb-2 text-green-500"></i>
+                            <p class="text-green-700">Barang berhasil ditambahkan ke keranjang!</p>
                         `;
                         overlay.style.display = 'block';
                         setTimeout(() => {

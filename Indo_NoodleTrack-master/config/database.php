@@ -79,6 +79,23 @@ try {
         throw new Exception("Error creating users table: " . $conn->error);
     }
 
+    // Request items table
+    $sql = "CREATE TABLE IF NOT EXISTS request_items (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        request_id INT NOT NULL,
+        bahan_id INT NOT NULL,
+        quantity DECIMAL(10,2) NOT NULL,
+        status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+        notes TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (request_id) REFERENCES requests(id) ON DELETE CASCADE,
+        FOREIGN KEY (bahan_id) REFERENCES stocks(id) ON DELETE CASCADE
+    )";
+    if (!$conn->query($sql)) {
+        throw new Exception("Error creating users table: " . $conn->error);
+    }
+
     // Activity logs table
     $sql = "CREATE TABLE IF NOT EXISTS activity_logs (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -114,13 +131,21 @@ try {
     // Requests table
     $sql = "CREATE TABLE IF NOT EXISTS requests (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        material_id INT,
+        material_id INT NOT NULL,
         quantity DECIMAL(10,2) NOT NULL,
         status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
         requested_by INT NOT NULL,
+        approved_by INT NULL,
+        rejected_by INT NULL,
+        approved_at TIMESTAMP NULL,
+        rejected_at TIMESTAMP NULL,
+        notes TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (material_id) REFERENCES raw_materials(id) ON DELETE CASCADE,
-        FOREIGN KEY (requested_by) REFERENCES users(id) ON DELETE CASCADE
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (material_id) REFERENCES stocks(id) ON DELETE CASCADE,
+        FOREIGN KEY (requested_by) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (approved_by) REFERENCES users(id) ON DELETE SET NULL,
+        FOREIGN KEY (rejected_by) REFERENCES users(id) ON DELETE SET NULL
     )";
     if (!$conn->query($sql)) {
         throw new Exception("Error creating requests table: " . $conn->error);

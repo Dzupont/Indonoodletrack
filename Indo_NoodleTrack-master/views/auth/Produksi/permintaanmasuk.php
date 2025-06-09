@@ -190,18 +190,10 @@ while ($row = $result->fetch_assoc()) {
                                 <span class="badge <?= $status_class; ?>"><?= ucfirst($p['status']); ?></span>
                             </td>
                             <td><?= htmlspecialchars($p['requested_by']); ?></td>
-                            <td>
-                                <?php if ($p['status'] === 'pending'): ?>
-                                    <button class="btn btn-sm btn-success" onclick="approveRequest(<?= $p['id']; ?>)">
-                                        <i class="fas fa-check"></i> Setujui
-                                    </button>
-                                    <button class="btn btn-sm btn-danger" onclick="rejectRequest(<?= $p['id']; ?>)">
-                                        <i class="fas fa-times"></i> Tolak
-                                    </button>
-                                <?php endif; ?>
-                                <a href="monitoring.php?id=<?= $p['id']; ?>" class="btn btn-sm btn-info">
+                            <td class="p-4">
+                                <button onclick="viewMonitoring(<?php echo htmlspecialchars($p['id']); ?>)" class="text-blue-500 hover:text-blue-700">
                                     <i class="fas fa-eye"></i> Monitoring
-                                </a>
+                                </button>
                             </td>
                         </tr>
                         <?php endforeach; ?>

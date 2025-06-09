@@ -8,31 +8,36 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'produksi') {
     exit();
 }
 
-// Get database connection
-$conn = getDBConnection();
-
 // Check if cart_id is set
 if (!isset($_POST['cart_id'])) {
     header('Location: keranjang.php?error=1');
     exit();
 }
 
+// Get database connection
+$conn = getDBConnection();
+
 try {
-    $cart_id = $_POST['cart_id'];
+    $conn->begin_transaction();
     
-    // Delete cart item
+    // Delete from cart
     $stmt = $conn->prepare("DELETE FROM cart WHERE id = ? AND user_id = ?");
-    $stmt->bind_param("ii", $cart_id, $_SESSION['user_id']);
+    $stmt->bind_param("ii", $_POST['cart_id'], $_SESSION['user_id']);
     
-    if (!$stmt->execute()) {
-        throw new Exception("Error deleting cart item: " . $conn->error);
-    }
+    if (!$stmt->execute()) throw new Exception("Gagal menghapus item dari keranjang: " . $conn->error);
     
-    // Redirect back to keranjang.php with success message
-    header('Location: keranjang.php?success=1');
+    $conn->commit();
+    
+    // Redirect back to the same page with success message
+    $referrer = $_SERVER['HTTP_REFERER'] ?? 'keranjang.php';
+    header("Location: $referrer?success=1");
     exit();
 } catch (Exception $e) {
-    error_log("Error in remove-from-cart.php: " . $e->getMessage());
-    header('Location: keranjang.php?error=1&error_msg=' . urlencode($e->getMessage()));
+    if (isset($conn)) $conn->rollback();
+    error_log("Error removing from cart: " . $e->getMessage());
+    
+    // Redirect back to the same page with error message
+    $referrer = $_SERVER['HTTP_REFERER'] ?? 'keranjang.php';
+    header("Location: $referrer?error=1");
     exit();
 }

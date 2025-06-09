@@ -1,19 +1,114 @@
-a<html lang="en">
- <head>
-  <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1" name="viewport"/>
-  <title>
-   Indo Noodle Track Monitoring
-  </title>
-  <script src="https://cdn.tailwindcss.com">
-  </script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
-  <style>
-   body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f4f8fb;
-      margin: 0;
+<?php
+session_start();
+require_once '../../../config/database.php';
+
+// Check if user is logged in and has produksi role
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'produksi') {
+    header('Location: ../../login.php');
+    exit();
+}
+
+// Get request ID from URL
+$request_id = isset($_GET['request_id']) ? intval($_GET['request_id']) : 0;
+
+// Get database connection
+$conn = getDBConnection();
+
+// Get request details
+$stmt = $conn->prepare("SELECT r.*, u.username as requested_by_name 
+                       FROM requests r 
+                       JOIN users u ON r.requested_by = u.id 
+                       WHERE r.id = ?");
+$stmt->bind_param("i", $request_id);
+$stmt->execute();
+$request = $stmt->get_result()->fetch_assoc();
+
+// Get request items
+$stmt = $conn->prepare("SELECT ri.*, s.nama as material_name, s.satuan as unit 
+                       FROM request_items ri 
+                       JOIN stocks s ON ri.bahan_id = s.id 
+                       WHERE ri.request_id = ?");
+$stmt->bind_param("i", $request_id);
+$stmt->execute();
+$request_items = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+// Get status history
+$stmt = $conn->prepare("SELECT a.*, u.username as user_name 
+                       FROM activity_logs a 
+                       JOIN users u ON a.user_id = u.id 
+                       WHERE a.description LIKE CONCAT('%request_id=', ?, '%') 
+                       ORDER BY a.created_at DESC");
+$stmt->bind_param("i", $request_id);
+$stmt->execute();
+$status_history = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoring Permintaan - IndoNoodle Track</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f8fb;
+            margin: 0;
+        }
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #4a9bb1;
+            color: white;
+            padding: 20px;
+        }
+        .sidebar h4 {
+            font-weight: bold;
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .sidebar .nav-link {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin: 5px 0;
+            transition: all 0.3s ease;
+        }
+        .sidebar .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+        .sidebar .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        .content {
+            margin-left: 270px;
+            padding: 30px;
+        }
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .status-pending { background-color: #fff3cd; color: #856404; }
+        .status-approved { background-color: #d4edda; color: #155724; }
+        .status-rejected { background-color: #f8d7da; color: #721c24; }
+    </style>
+
+</head>
+<body>
+    <!-- Sidebar -->
     }
     .sidebar {
         width: 250px;
@@ -84,21 +179,77 @@ a<html lang="en">
             <span>Logout</span>
         </a>
     </div>
-   <div class="content">
-   <header class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-    <h1 class="text-[#4a9bb1] font-extrabold text-2xl md:text-3xl leading-tight">
-     Monitoring
-    </h1>
-    <form class="mt-4 md:mt-0 relative w-full max-w-xs md:max-w-sm" role="search">
-     <input aria-label="Search" class="w-full rounded-full bg-[#d4f0f5] py-1.5 px-3 text-xs placeholder-[#4a9bb1] focus:outline-none" placeholder="Search" type="search"/>
-     <button aria-label="Search" class="absolute right-2 top-1/2 -translate-y-1/2 text-[#4a9bb1] text-xs" type="submit">
-      <i class="fas fa-search">
-      </i>
-     </button>
-    </form>
-    <div class="mt-6 md:mt-0 flex items-center space-x-3 whitespace-nowrap text-right text-xs text-[#3a3a3a]">
-     <img alt="Photo of a young man with black hair wearing a white shirt and black tie" class="rounded-full w-8 h-8 object-cover" height="32" src="https://storage.googleapis.com/a1aa/image/8dbe71cf-05a3-4513-1631-9c930006e72c.jpg" width="32"/>
-     <div>
+    <div class="content">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-[#4a9bb1] font-bold text-2xl">Monitoring Permintaan</h1>
+            <a href="permintaanmasuk.php" class="text-[#4a9bb1] hover:text-[#2e94a6]">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Kembali
+            </a>
+        </div>
+
+        <?php if (!$request): ?>
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <strong class="font-bold">Error!</strong>
+                <span class="block sm:inline">Permintaan tidak ditemukan.</span>
+            </div>
+        <?php else: ?>
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="mb-6">
+                    <h2 class="text-xl font-bold mb-2">Detail Permintaan</h2>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-gray-600">ID Permintaan</p>
+                            <p class="font-semibold">#<?php echo htmlspecialchars($request['id']); ?></p>
+                        </div>
+                        <div>
+                            <p class="text-gray-600">Tanggal Permintaan</p>
+                            <p class="font-semibold"><?php echo date('d M Y H:i', strtotime($request['created_at'])); ?></p>
+                        </div>
+                        <div>
+                            <p class="text-gray-600">Dibuat Oleh</p>
+                            <p class="font-semibold"><?php echo htmlspecialchars($request['requested_by_name']); ?></p>
+                        </div>
+                        <div>
+                            <p class="text-gray-600">Status</p>
+                            <span class="status-badge status-<?php echo htmlspecialchars($request['status']); ?>">
+                                <?php echo ucfirst($request['status']); ?>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h2 class="text-xl font-bold mb-2">Daftar Bahan Baku</h2>
+                    <div class="space-y-4">
+                        <?php foreach ($request_items as $item): ?>
+                            <div class="flex justify-between items-center border-b pb-2">
+                                <div>
+                                    <p class="font-medium"><?php echo htmlspecialchars($item['material_name']); ?></p>
+                                    <p class="text-sm text-gray-500"><?php echo htmlspecialchars($item['quantity']); ?> <?php echo htmlspecialchars($item['unit']); ?></p>
+                                </div>
+                                <span class="status-badge status-<?php echo htmlspecialchars($request['status']); ?>">
+                                    <?php echo ucfirst($request['status']); ?>
+                                </span>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-xl font-bold mb-2">Riwayat Status</h2>
+                    <div class="space-y-3">
+                        <?php foreach ($status_history as $history): ?>
+                            <div class="flex items-center gap-3">
+                                <span class="text-gray-400"><?php echo date('d M Y H:i', strtotime($history['created_at'])); ?></span>
+                                <span class="flex-1"><?php echo htmlspecialchars($history['activity']); ?></span>
+                                <span class="text-sm text-gray-500"><?php echo htmlspecialchars($history['user_name']); ?></span>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
       <div class="font-semibold text-sm">
        Divisi Gudang
       </div>

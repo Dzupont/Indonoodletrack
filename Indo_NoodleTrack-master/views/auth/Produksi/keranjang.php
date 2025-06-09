@@ -16,26 +16,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'produksi') {
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .sidebar {
-            width: 230px;
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background-color: #4a9bb1;
-            color: white;
-            padding: 25px 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .sidebar h4 {
-            font-weight: bold;
-            font-size: 1.4rem;
-            margin-bottom: 2rem;
-        }
-
         .nav-link {
             color: white;
             padding: 10px 15px;
@@ -54,9 +34,41 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'produksi') {
         .nav-link i {
             margin-right: 10px;
         }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+        }
+
+        th {
+            background-color: #4a9bb1;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+
+        td {
+            background-color: white;
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 0.95rem;
+        }
+
+        tr td:first-child {
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+        }
+
+        tr td:last-child {
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
     </style>
 </head>
-<body class="bg-gray-50 font-sans">
+<body class="bg-gray-100 font-sans">
 
 <div class="flex min-h-screen">
     <!-- Sidebar -->
@@ -64,7 +76,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'produksi') {
         <div class="flex flex-col justify-between h-full">
             <div>
                 <img src="/Indo_NoodleTrack-master/assets/images/logo.jpg" alt="Logo" class="w-16 h-16 mb-2 rounded-full">
-                <span class="text-xl font-bold">indo<br>noodle<br>track.</span>
+                <span class="text-xl font-bold leading-5">indo<br>noodle<br>track.</span>
             </div>
             <nav class="flex flex-col gap-4 text-sm font-semibold mt-6">
                 <a href="dashboardproduksi.php" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
@@ -92,10 +104,11 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'produksi') {
 
         <!-- Table -->
         <div class="p-8">
-            <div class="table-container">
+            <form id="requestForm" action="submit-request.php" method="POST">
                 <table>
                     <thead>
                         <tr>
+                            <th><input type="checkbox" id="selectAll" onclick="toggleAllCheckboxes(this)"></th>
                             <th>ID</th>
                             <th>Item</th>
                             <th>Kuantitas</th>
@@ -105,32 +118,24 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'produksi') {
                     </thead>
                     <tbody>
                         <?php
-                        // Get database connection
                         $conn = getDBConnection();
-                        
-                        // Get cart items for current user
-                        $stmt = $conn->prepare("SELECT c.*, s.nama, s.stok, s.satuan 
-                                               FROM cart c 
-                                               JOIN stocks s ON c.bahan_id = s.id 
-                                               WHERE c.user_id = ?");
+                        $stmt = $conn->prepare("SELECT c.*, s.nama, s.stok, s.satuan FROM cart c JOIN stocks s ON c.bahan_id = s.id WHERE c.user_id = ?");
                         $stmt->bind_param("i", $_SESSION['user_id']);
                         $stmt->execute();
                         $result = $stmt->get_result();
-                        
+
                         if ($result->num_rows === 0) {
-                            echo '<tr><td colspan="5" class="text-center py-6 text-gray-400">Keranjang Kosong</td></tr>';
+                            echo '<tr><td colspan="6" class="text-center text-gray-400 py-8">Keranjang Kosong</td></tr>';
                         } else {
                             while ($row = $result->fetch_assoc()) {
-                                echo '<tr class="border-b border-gray-100">';
-                                echo '<td class="py-3 px-6">' . htmlspecialchars($row['id']) . '</td>';
-                                echo '<td class="py-3 px-6">' . htmlspecialchars($row['nama']) . '</td>';
-                                echo '<td class="py-3 px-6">' . htmlspecialchars($row['quantity']) . ' ' . htmlspecialchars($row['satuan']) . '</td>';
-                                echo '<td class="py-3 px-6">' . htmlspecialchars($row['stok']) . ' ' . htmlspecialchars($row['satuan']) . '</td>';
-                                echo '<td class="py-3 px-6">';
-                                echo '<form action="remove-from-cart.php" method="POST" class="inline">';
-                                echo '<input type="hidden" name="cart_id" value="' . htmlspecialchars($row['id']) . '">';
-                                echo '<button type="submit" class="text-red-500 hover:text-red-700">🗑</button>';
-                                echo '</form>';
+                                echo '<tr>';
+                                echo '<td><input type="checkbox" name="selected_items[]" value="' . htmlspecialchars($row['id']) . '"></td>';
+                                echo '<td>' . htmlspecialchars($row['id']) . '</td>';
+                                echo '<td>' . htmlspecialchars($row['nama']) . '</td>';
+                                echo '<td>' . htmlspecialchars($row['quantity']) . ' ' . htmlspecialchars($row['satuan']) . '</td>';
+                                echo '<td>' . htmlspecialchars($row['stok']) . ' ' . htmlspecialchars($row['satuan']) . '</td>';
+                                echo '<td>';
+                                echo '<button type="button" class="text-red-500 hover:text-red-700" title="Hapus dari keranjang" onclick="deleteItem(' . htmlspecialchars($row['id']) . ')">🗑</button>';
                                 echo '</td>';
                                 echo '</tr>';
                             }
@@ -138,72 +143,144 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'produksi') {
                         ?>
                     </tbody>
                 </table>
-            </div>
+                <div class="flex justify-end mt-6">
+                    <button type="submit" form="requestForm" class="bg-[#4a9bb1] text-white px-8 py-2 rounded-full hover:bg-[#2e94a6] transition">Ajukan</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-            <!-- Button -->
-            <div class="mt-6 flex justify-end">
-                <button id="checkoutBtn" class="bg-gray-400 text-white px-6 py-2 rounded-full hover:bg-gray-500 transition">Ajukan</button>
-            </div>
+    <!-- Notification -->
+    <div id="notification" class="hidden fixed top-4 right-4 bg-green-500 text-white p-4 rounded-lg shadow-lg">
+        <p id="notificationText" class="font-medium text-base"></p>
+    </div>
+
+    <?php
+    if (isset($_GET['added']) && $_GET['added'] === '1') {
+        echo '<script>
+            showNotification("Barang berhasil ditambahkan ke keranjang");
+        </script>';
+    }
+    
+    if (isset($_GET['success']) && $_GET['success'] === '1') {
+        echo '<script>
+            showNotification("Item berhasil dihapus dari keranjang");
+        </script>';
+    }
+    ?>
+
+    <script>
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+            notificationText.textContent = message;
+            notification.classList.remove('hidden');
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 2000);
+        }
+
+        function deleteItem(cartId) {
+            if (confirm('Apakah Anda yakin ingin menghapus item ini?')) {
+                showNotification('Menghapus item...');
+                
+                // Submit the form using JavaScript
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = 'remove-from-cart.php';
+                
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'cart_id';
+                input.value = cartId;
+                
+                form.appendChild(input);
+                document.body.appendChild(form);
+                
+                setTimeout(() => {
+                    form.submit();
+                }, 500);
+            }
+        }
+
+        function toggleAllCheckboxes(source) {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"][name="selected_items[]"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = source.checked;
+            });
+        }
+
+        // Handle form submission
+        document.getElementById('requestForm')?.addEventListener('submit', function(e) {
+            const selectedCheckboxes = document.querySelectorAll('input[type="checkbox"][name="selected_items[]"]:checked');
+            if (selectedCheckboxes.length === 0) {
+                alert('Silakan pilih setidaknya satu item untuk diajukan!');
+                e.preventDefault();
+            }
+        });
+
+        // Show notification when page loads
+        window.addEventListener('load', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('success') && urlParams.get('success') === '1') {
+                const notification = document.getElementById('notification');
+                notification.classList.remove('hidden');
+                setTimeout(() => {
+                    notification.classList.add('hidden');
+                }, 2000);
+            }
+        });
+    </script>
+</body>
+</html>
+            </form>
         </div>
     </main>
 </div>
 
-<!-- Notification -->
-<div id="pageNotification" class="hidden fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#00BCD4] text-white p-6 rounded-lg text-center z-50 w-[260px] shadow-md">
-    <div class="flex justify-center mb-3">
-        <div class="w-10 h-10 rounded-full border-2 border-white flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="white">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-            </svg>
-        </div>
+    <!-- Notification -->
+    <div id="notification" class="hidden fixed top-4 right-4 bg-green-500 text-white p-4 rounded-lg shadow-lg">
+        <p class="font-medium text-base">Item berhasil dihapus dari keranjang!</p>
     </div>
-    <p class="font-medium text-base">Permintaan Berhasil Diajukan</p>
-</div>
+
+    <?php
+    if (isset($_GET['success']) && $_GET['success'] === '1') {
+        echo '<script>
+            const notification = document.getElementById("notification");
+            notification.classList.remove("hidden");
+            setTimeout(() => {
+                notification.classList.add("hidden");
+            }, 2000);
+        </script>';
+    }
+    ?>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const cart = JSON.parse(localStorage.getItem('indoNoodleCart')) || [];
-    const tbody = document.getElementById('cartItemsList');
-    tbody.innerHTML = '';
-
-    if (cart.length === 0) {
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="5" class="text-center py-6 text-gray-400">Keranjang Permintaan Kosong</td>
-            </tr>`;
-    } else {
-        cart.forEach((item, index) => {
-            const row = document.createElement('tr');
-            row.className = 'border-b border-gray-100';
-            row.innerHTML = `
-                <td class="py-3 px-6">${item.id || '-'}</td>
-                <td class="py-3 px-6">${item.nama || '-'}</td>
-                <td class="py-3 px-6">${item.jumlah || 0} Kg</td>
-                <td class="py-3 px-6">${item.stok || 0} Kg</td>
-                <td class="py-3 px-6">
-                    <button onclick="removeItem(${index})" class="text-red-500 hover:text-red-700">
-                        🗑
-                    </button>
-                </td>
-            `;
-            tbody.appendChild(row);
-        });
-    }
-
-    document.getElementById('checkoutBtn').addEventListener('click', () => {
-        document.getElementById('pageNotification').classList.remove('hidden');
-        setTimeout(() => {
-            document.getElementById('pageNotification').classList.add('hidden');
-        }, 2000);
+function toggleAllCheckboxes(source) {
+    const checkboxes = document.querySelectorAll('input[type="checkbox"][name="selected_items[]"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = source.checked;
     });
+}
+
+document.getElementById('requestForm')?.addEventListener('submit', function(e) {
+    const selectedCheckboxes = document.querySelectorAll('input[type="checkbox"][name="selected_items[]"]:checked');
+    if (selectedCheckboxes.length === 0) {
+        alert('Silakan pilih setidaknya satu item untuk diajukan!');
+        e.preventDefault();
+    }
 });
 
-function removeItem(index) {
-    const cart = JSON.parse(localStorage.getItem('indoNoodleCart')) || [];
-    cart.splice(index, 1);
-    localStorage.setItem('indoNoodleCart', JSON.stringify(cart));
-    location.reload();
-}
+window.addEventListener('load', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('success') && urlParams.get('success') === '1') {
+        const notification = document.getElementById('notification');
+        notification.classList.remove('hidden');
+        setTimeout(() => {
+            notification.classList.add('hidden');
+        }, 2000);
+    }
+});
 </script>
 
 </body>

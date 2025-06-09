@@ -62,14 +62,17 @@ try {
     if ($result->num_rows > 0) {
         $cart_item = $result->fetch_assoc();
         
-        // Redirect to keranjang.php with success message
-        header('Location: keranjang.php?success=1&cart_item=' . json_encode($cart_item));
+        // Redirect back to the same page with success message
+        $referrer = $_SERVER['HTTP_REFERER'] ?? 'dashboardproduksi.php';
+        header("Location: $referrer?added=1");
         exit();
     } else {
         throw new Exception("Cart item not found");
     }
 } catch (Exception $e) {
     error_log("Error in add-to-cart.php: " . $e->getMessage());
-    header('Location: dashboardproduksi.php?error=1&error_msg=' . urlencode($e->getMessage()));
+    // Redirect back to the same page with error message
+    $referrer = $_SERVER['HTTP_REFERER'] ?? 'dashboardproduksi.php';
+    header("Location: $referrer?error=1&error_msg=" . urlencode($e->getMessage()));
     exit();
 }
