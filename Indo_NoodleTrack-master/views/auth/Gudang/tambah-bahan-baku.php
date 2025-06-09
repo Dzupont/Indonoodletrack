@@ -1,26 +1,36 @@
 <?php
-// Contoh penyimpanan input dan error (simulasi saja)
-$errors = [];
-$old = $_POST ?? [];
+require_once __DIR__ . '/../../../config/database.php';
+require_once __DIR__ . '/../../../config/session.php';
+require_once __DIR__ . '/../../../config/base_url.php';
 
-// Jika ada submit (POST)
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Validasi dasar
-    if (empty($_POST['nama_bahanbaku'])) {
-        $errors[] = "Nama Bahan Baku wajib diisi.";
-    }
-    if (empty($_POST['jenis_bahanbaku'])) {
-        $errors[] = "Jenis Bahan Baku wajib dipilih.";
-    }
-
-    // Lakukan penyimpanan ke database di sini...
+// Check login and role
+checkLoginAndRedirect();
+if (getCurrentUserRole() !== 'gudang') {
+    header('Location: ' . getBaseUrl() . 'views/auth/login.php');
+    exit();
 }
+
+// Get any session messages
+$success = isset($_SESSION['success']) ? $_SESSION['success'] : null;
+$error = isset($_SESSION['error']) ? $_SESSION['error'] : null;
+$errors = isset($_SESSION['errors']) ? $_SESSION['errors'] : [];
+$old_data = isset($_SESSION['old_data']) ? $_SESSION['old_data'] : [];
+
+// Clear session messages
+if (isset($_SESSION['success'])) unset($_SESSION['success']);
+if (isset($_SESSION['error'])) unset($_SESSION['error']);
+if (isset($_SESSION['errors'])) unset($_SESSION['errors']);
+if (isset($_SESSION['old_data'])) unset($_SESSION['old_data']);
+
+// Get form data from session or POST
+$old = $_POST ?? $old_data;
 ?>
 
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tambah Bahan Baku</title>
     <style>
         body {
@@ -28,6 +38,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background-color: #f1f5f9;
             margin: 0;
             padding: 2rem;
+        }
+
+        .success-message {
+            background-color: #dcfce7;
+            color: #059669;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .error-message {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
         }
 
         .form-container {
@@ -95,14 +121,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background-color: #f0fafa;
         }
 
-        .error-message {
-            background-color: #fee2e2;
-            color: #b91c1c;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-        }
-
         .flex {
             display: flex;
             justify-content: flex-end;
@@ -114,6 +132,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="form-container">
         <h2 class="form-header">Tambah Bahan Baku Baru</h2>
 
+        <?php if ($success): ?>
+            <div class="success-message">
+                <?= htmlspecialchars($success) ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if ($error): ?>
+            <div class="error-message">
+                <?= htmlspecialchars($error) ?>
+            </div>
+        <?php endif; ?>
+
         <?php if (!empty($errors)): ?>
             <div class="error-message">
                 <ul>
@@ -124,7 +154,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         <?php endif; ?>
 
-        <form action="/IndoNoodleTrack/Indo_NoodleTrack-master/controllers/store-bahan-baku.php" method="POST" enctype="multipart/form-data">
+        <form action="../../../controllers/store-bahan-baku.php" method="POST" enctype="multipart/form-data">
             <!-- Nama Bahan Baku -->
             <label class="form-label" for="nama_bahanbaku">Nama Bahan Baku <span style="color:red">*</span></label>
             <input class="form-input" type="text" name="nama_bahanbaku" id="nama_bahanbaku" required value="<?= htmlspecialchars($old['nama_bahanbaku'] ?? '') ?>">
@@ -132,29 +162,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <!-- Jenis Bahan Baku -->
             <label class="form-label" for="jenis_bahanbaku">Jenis Bahan Baku <span style="color:red">*</span></label>
             <select class="form-select" name="jenis_bahanbaku" id="jenis_bahanbaku" required>
-    <option value="">Pilih Jenis</option>
-    <?php
-    $jenisOptions = [
-        'Tepung Terigu',
-        'Tepung Tapioka',
-        'Air',
-        'Garam',
-        'Telur',
-        'Minyak Nabati',
-        'Pewarna Makanan',
-        'Pengawet',
-        'Bumbu Penyedap',
-        'Kemasan Plastik',
-        'Label / Stiker',
-        'Box Karton'
-    ];
-    foreach ($jenisOptions as $jenis) {
-        $selected = ($old['jenis_bahanbaku'] ?? '') === $jenis ? 'selected' : '';
-        echo "<option value=\"$jenis\" $selected>$jenis</option>";
-    }
-    ?>
-</select>
-
+                <option value="">Pilih Jenis</option>
+                <?php
+                $jenisOptions = [
+                    'Tepung Terigu',
+                    'Tepung Tapioka',
+                    'Air',
+                    'Garam',
+                    'Telur',
+                    'Minyak Nabati',
+                    'Pewarna Makanan',
+                    'Pengawet',
+                    'Bumbu Penyedap',
+                    'Kemasan Plastik',
+                    'Label / Stiker',
+                    'Box Karton'
+                ];
+                foreach ($jenisOptions as $jenis) {
+                    $selected = ($old['jenis_bahanbaku'] ?? '') === $jenis ? 'selected' : '';
+                    echo "<option value='" . htmlspecialchars($jenis) . "' " . $selected . ">" . htmlspecialchars($jenis) . "</option>";
+                }
+                ?>
+            </select>
 
             <!-- Jumlah Stok -->
             <label class="form-label" for="stok_bahanbaku">Jumlah Stok</label>
@@ -173,8 +202,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <label class="form-label" for="minimal_stok">Minimal Stok</label>
             <input class="form-input" type="number" name="minimal_stok" id="minimal_stok" min="0" value="<?php echo htmlspecialchars($old['minimal_stok'] ?? '0'); ?>">
             <p style="font-size: 0.8rem; color: #6b7280;">Stok minimum yang harus tersedia</p>
-
-
 
             <!-- Tanggal Expired -->
             <label class="form-label" for="tanggal_expired">Tanggal Expired</label>

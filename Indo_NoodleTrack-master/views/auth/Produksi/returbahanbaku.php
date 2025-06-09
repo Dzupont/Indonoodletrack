@@ -29,50 +29,91 @@ if (!$user) {
 
 // Process form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $material_id = $_POST['material_id'];
+    $stock_id = $_POST['stock_id'];
     $quantity = $_POST['quantity'];
     $reason = $_POST['reason'];
     $returned_by = $_SESSION['user_id'];
-    $approved_by = null; // Will be set when approved
+    $approved_by = null;
     $created_at = date('Y-m-d H:i:s');
 
     // Insert return record
-    $sql = "INSERT INTO returns (material_id, quantity, reason, returned_by, approved_by, created_at) 
+    $sql = "INSERT INTO returns (stock_id, quantity, reason, returned_by, approved_by, created_at) 
             VALUES (?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
     
-    if ($stmt->execute([$material_id, $quantity, $reason, $returned_by, $approved_by, $created_at])) {
-        // Update material stock
-        $update_stock_sql = "UPDATE raw_materials SET stock = stock + ? WHERE id = ?";
+    if ($stmt->execute([$stock_id, $quantity, $reason, $returned_by, $approved_by, $created_at])) {
+        // Update stock
+        $update_stock_sql = "UPDATE stocks SET stok = stok + ? WHERE id = ?";
         $stock_stmt = $conn->prepare($update_stock_sql);
-        $stock_stmt->bind_param("di", $quantity, $material_id);
+        $stock_stmt->bind_param("di", $quantity, $stock_id);
         $stock_stmt->execute();
         
         $_SESSION['success'] = "Retur berhasil ditambahkan dan stok diperbarui";
         header('Location: ' . $base_url . 'views/auth/Produksi/returbahanbaku.php');
         exit();
     } else {
-        $_SESSION['error'] = "Gagal menambahkan retur";
+        $_SESSION['error'] = "Gagal menambahkan retur: " . $stmt->error;
+        header('Location: ' . $base_url . 'views/auth/Produksi/returbahanbaku.php');
+        exit();
     }
 }
 
 // Fetch returns
-$sql = "SELECT r.*, m.name as material_name, u.username as returned_by_name
+$sql = "SELECT r.*, s.nama as stock_name, u.username as returned_by_name, u2.username as approved_by_name
         FROM returns r
-        LEFT JOIN raw_materials m ON r.material_id = m.id 
+        LEFT JOIN stocks s ON r.stock_id = s.id 
         LEFT JOIN users u ON r.returned_by = u.id 
+        LEFT JOIN users u2 ON r.approved_by = u2.id
         ORDER BY r.created_at DESC";
+
+// Debug: Log the actual SQL query
+error_log("Executing SQL: " . $sql);
+
 $result = $conn->query($sql);
+
+// Debug logging
+error_log("Query result: " . ($result ? "success" : "failed"));
+error_log("Number of returns: " . $result->num_rows);
+
+// Debug: Check first row of data
+if ($result && $result->num_rows > 0) {
+    $first_row = $result->fetch_assoc();
+    error_log("First return data:");
+    error_log("ID: " . $first_row['id']);
+    error_log("Stock ID: " . $first_row['stock_id']);
+    error_log("Stock Name: " . $first_row['stock_name']);
+    error_log("Quantity: " . $first_row['quantity']);
+    error_log("Reason: " . $first_row['reason']);
+    error_log("Returned By: " . $first_row['returned_by_name']);
+    error_log("Created At: " . $first_row['created_at']);
+    error_log("Status: " . $first_row['status']);
+    error_log("Approved By: " . $first_row['approved_by']);
+}
+
 $returns = array();
+$result->data_seek(0); // Reset result pointer
 while ($row = $result->fetch_assoc()) {
     $returns[] = $row;
 }
 
-$materials_sql = "SELECT id, name FROM raw_materials ORDER BY name";
-$materials_result = $conn->query($materials_sql);
-$materials = [];
-while ($row = $materials_result->fetch_assoc()) {
-    $materials[] = $row;
+$stocks_sql = "SELECT id, nama FROM stocks ORDER BY nama";
+$stocks_result = $conn->query($stocks_sql);
+
+// Debug: Check stocks data
+error_log("Stocks query result: " . ($stocks_result ? "success" : "failed"));
+error_log("Number of stocks: " . $stocks_result->num_rows);
+
+if ($stocks_result->num_rows > 0) {
+    $first_stock = $stocks_result->fetch_assoc();
+    error_log("First stock data:");
+    error_log("ID: " . $first_stock['id']);
+    error_log("Nama: " . $first_stock['nama']);
+}
+
+$stocks_result->data_seek(0); // Reset result pointer
+$stocks = [];
+while ($row = $stocks_result->fetch_assoc()) {
+    $stocks[] = $row;
 }
 while ($row = $result->fetch_assoc()) {
     $returns[] = $row;
@@ -185,7 +226,7 @@ while ($row = $result->fetch_assoc()) {
             border: none;
             padding: 15px;
         }
-        .table tr:hover {
+    .table tr:hover {
             background-color: #f8f9fa;
         }
         .btn-primary {
@@ -287,33 +328,28 @@ while ($row = $result->fetch_assoc()) {
                 <?php echo $_SESSION['error']; unset($_SESSION['error']); ?>
             </div>
         <?php endif; ?>
-        <div class="table-container">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 style="color:#4a9bb1;">Retur Bahan Baku</h2>
-                <a href="<?php echo getBaseUrl(); ?>views/auth/Produksi/tambahretur.php" class="btn-primary">
-                    <i class="fas fa-plus me-2"></i> Tambah Retur
-                </a>
+        <main class="flex-1 bg-white px-10 py-8">
+            <div class="flex justify-between items-center mb-6">
             </div>
-    <?php if (isset($_SESSION['success'])): ?>
-        <div class="success-message show">
-            <i class="fas fa-check-circle me-2"></i>
-            <?php echo $_SESSION['success']; unset($_SESSION['success']); ?>
-        </div>
-    <?php endif; ?>
-    <?php if (isset($_SESSION['error'])): ?>
-        <div class="error-message show">
-            <i class="fas fa-exclamation-circle me-2"></i>
-            <?php echo $_SESSION['error']; unset($_SESSION['error']); ?>
-        </div>
-    <?php endif; ?>
-    <div class="table-container">
 
-    <?php if (isset($_SESSION['success'])): ?>
-        <div class="bg-green-100 text-green-800 px-4 py-2 rounded mb-4"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
-    <?php endif; ?>
-    <?php if (isset($_SESSION['error'])): ?>
-        <div class="bg-red-100 text-red-800 px-4 py-2 rounded mb-4"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
-    <?php endif; ?>
+            <div class="table-container">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <a href="<?php echo getBaseUrl(); ?>views/auth/Produksi/tambahretur.php" class="btn-primary">
+                        <i class="fas fa-plus me-2"></i> Tambah Retur
+                    </a>
+                </div>
+            </div>
+
+            <?php if (isset($_SESSION['success'])): ?>
+                <div class="bg-green-100 text-green-800 px-4 py-2 rounded mb-4">
+                    <?php echo $_SESSION['success']; unset($_SESSION['success']); ?>
+                </div>
+            <?php endif; ?>
+            <?php if (isset($_SESSION['error'])): ?>
+                <div class="bg-red-100 text-red-800 px-4 py-2 rounded mb-4">
+                    <?php echo $_SESSION['error']; unset($_SESSION['error']); ?>
+                </div>
+            <?php endif; ?>
 
     <div class="bg-[#F4FBFF] p-6 rounded-lg shadow">
         <table class="w-full text-sm text-left text-gray-700">
@@ -333,7 +369,7 @@ while ($row = $result->fetch_assoc()) {
                 <?php foreach ($returns as $index => $retur): ?>
                 <tr class="border-b">
                     <td class="px-4 py-3"><?php echo $index + 1; ?></td>
-                    <td class="px-4 py-3"><?php echo htmlspecialchars($retur['material_name']); ?></td>
+                    <td class="px-4 py-3"><?php echo htmlspecialchars($retur['stock_name']); ?></td>
                     <td class="px-4 py-3"><?php echo htmlspecialchars($retur['quantity']); ?></td>
                     <td class="px-4 py-3"><?php echo htmlspecialchars($retur['reason']); ?></td>
                     <td class="px-4 py-3"><?php echo htmlspecialchars($retur['returned_by_name']); ?></td>
@@ -356,6 +392,94 @@ while ($row = $result->fetch_assoc()) {
         </table>
     </div>
 </main>
+
+<!-- Add Return Modal -->
+<div class="modal fade" id="addReturnModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Tambah Retur</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="tambahretur.php">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="stock_id" class="form-label">Bahan Baku</label>
+                        <select name="stock_id" id="stock_id" class="form-select" required>
+                            <option value="">Pilih bahan baku...</option>
+                            <?php
+                            $sql = "SELECT id, nama FROM stocks ORDER BY nama";
+                            $result = $conn->query($sql);
+                            while ($row = $result->fetch_assoc()) {
+                                echo "<option value='" . $row['id'] . "'>" . $row['nama'] . "</option>";
+                            }
+                            ?>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="quantity" class="form-label">Jumlah</label>
+                        <input type="number" name="quantity" id="quantity" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="reason" class="form-label">Alasan Retur</label>
+                        <textarea name="reason" id="reason" class="form-control" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Approve Modal -->
+<div class="modal fade" id="approveModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Setujui Retur</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Apakah Anda yakin ingin menyetujui retur ini?</p>
+                <form id="approveForm" method="POST" action="approve_return.php">
+                    <input type="hidden" name="return_id" id="approveReturnId">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" form="approveForm" class="btn btn-success">Setujui</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reject Modal -->
+<div class="modal fade" id="rejectModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Tolak Retur</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="rejectForm" method="POST" action="reject_return.php">
+                    <input type="hidden" name="return_id" id="rejectReturnId">
+                    <div class="mb-3">
+                        <label for="rejection_reason" class="form-label">Alasan Penolakan</label>
+                        <textarea class="form-control" name="rejection_reason" id="rejection_reason" rows="3" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" form="rejectForm" class="btn btn-danger">Tolak</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Add Return Modal -->
 <div class="modal fade" id="addReturnModal" tabindex="-1">

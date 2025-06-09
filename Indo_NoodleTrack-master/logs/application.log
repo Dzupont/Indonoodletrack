@@ -1,0 +1,142 @@
+[09-Jun-2025 22:49:44 Europe/Berlin] [2025-06-09 22:49:44] Session status:
+[09-Jun-2025 22:49:44 Europe/Berlin] [2025-06-09 22:49:44] Session ID: qjq9f595i1tvlc6ke50l9aq968
+[09-Jun-2025 22:49:44 Europe/Berlin] [2025-06-09 22:49:44] Session variables:
+[09-Jun-2025 22:49:44 Europe/Berlin] [2025-06-09 22:49:44] user_id: 19
+[09-Jun-2025 22:49:44 Europe/Berlin] [2025-06-09 22:49:44] username: ceca
+[09-Jun-2025 22:49:44 Europe/Berlin] [2025-06-09 22:49:44] role: produksi
+[09-Jun-2025 22:49:44 Europe/Berlin] [2025-06-09 22:49:44] Database connection status:
+[09-Jun-2025 22:49:44 Europe/Berlin] [2025-06-09 22:49:44] Database connection successful
+[09-Jun-2025 22:49:44 Europe/Berlin] [2025-06-09 22:49:44] Server info: 10.4.32-MariaDB
+[09-Jun-2025 22:49:44 Europe/Berlin] [2025-06-09 22:49:44] Error: [2] Undefined property: mysqli::$database in C:\xampp\htdocs\noodlebaru\Indonoodletrack\Indo_NoodleTrack-master\config\logging.php on line 48
+[09-Jun-2025 22:49:44 Europe/Berlin] PHP Warning:  Undefined property: mysqli::$database in C:\xampp\htdocs\noodlebaru\Indonoodletrack\Indo_NoodleTrack-master\config\logging.php on line 48
+[09-Jun-2025 22:49:44 Europe/Berlin] [2025-06-09 22:49:44] Database: 
+[09-Jun-2025 22:49:44 Europe/Berlin] [2025-06-09 22:49:44] Returns table exists
+[09-Jun-2025 22:49:44 Europe/Berlin] [2025-06-09 22:49:44] Stocks table exists
+[09-Jun-2025 22:49:44 Europe/Berlin] [2025-06-09 22:49:44] Prepare error: 
+[09-Jun-2025 22:49:44 Europe/Berlin] [2025-06-09 22:49:44] Transaction rolled back
+[09-Jun-2025 23:15:25 Europe/Berlin] [2025-06-09 23:15:25] Session status:
+[09-Jun-2025 23:15:25 Europe/Berlin] [2025-06-09 23:15:25] Session ID: qjq9f595i1tvlc6ke50l9aq968
+[09-Jun-2025 23:15:25 Europe/Berlin] [2025-06-09 23:15:25] Session variables:
+[09-Jun-2025 23:15:25 Europe/Berlin] [2025-06-09 23:15:25] user_id: 19
+[09-Jun-2025 23:15:25 Europe/Berlin] [2025-06-09 23:15:25] username: ceca
+[09-Jun-2025 23:15:25 Europe/Berlin] [2025-06-09 23:15:25] role: produksi
+[09-Jun-2025 23:15:25 Europe/Berlin] [2025-06-09 23:15:25] Database connection status:
+[09-Jun-2025 23:15:25 Europe/Berlin] [2025-06-09 23:15:25] Database connection successful
+[09-Jun-2025 23:15:25 Europe/Berlin] [2025-06-09 23:15:25] Server info: 10.4.32-MariaDB
+[09-Jun-2025 23:15:25 Europe/Berlin] [2025-06-09 23:15:25] Database: indonoodle_track
+[09-Jun-2025 23:15:25 Europe/Berlin] [2025-06-09 23:15:25] Returns table exists
+[09-Jun-2025 23:15:25 Europe/Berlin] [2025-06-09 23:15:25] Stocks table exists
+[09-Jun-2025 23:15:51 Europe/Berlin] [2025-06-09 23:15:51] Session status:
+[09-Jun-2025 23:15:51 Europe/Berlin] [2025-06-09 23:15:51] Session ID: qjq9f595i1tvlc6ke50l9aq968
+[09-Jun-2025 23:15:51 Europe/Berlin] [2025-06-09 23:15:51] Session variables:
+[09-Jun-2025 23:15:51 Europe/Berlin] [2025-06-09 23:15:51] user_id: 19
+[09-Jun-2025 23:15:51 Europe/Berlin] [2025-06-09 23:15:51] username: ceca
+[09-Jun-2025 23:15:51 Europe/Berlin] [2025-06-09 23:15:51] role: produksi
+[09-Jun-2025 23:15:51 Europe/Berlin] [2025-06-09 23:15:51] Database connection status:
+[09-Jun-2025 23:15:51 Europe/Berlin] [2025-06-09 23:15:51] Database connection successful
+[09-Jun-2025 23:15:51 Europe/Berlin] [2025-06-09 23:15:51] Server info: 10.4.32-MariaDB
+[09-Jun-2025 23:15:51 Europe/Berlin] [2025-06-09 23:15:51] Database: indonoodle_track
+[09-Jun-2025 23:15:51 Europe/Berlin] [2025-06-09 23:15:51] Returns table exists
+[09-Jun-2025 23:15:51 Europe/Berlin] [2025-06-09 23:15:51] Stocks table exists
+[09-Jun-2025 23:15:51 Europe/Berlin] Session data:
+[09-Jun-2025 23:15:51 Europe/Berlin] user_id: 19
+[09-Jun-2025 23:15:51 Europe/Berlin] role: produksi
+[09-Jun-2025 23:15:51 Europe/Berlin] [2025-06-09 23:15:51] Form data received:
+[09-Jun-2025 23:15:51 Europe/Berlin] [2025-06-09 23:15:51] stock_id: 19
+[09-Jun-2025 23:15:51 Europe/Berlin] [2025-06-09 23:15:51] quantity: 5
+[09-Jun-2025 23:15:51 Europe/Berlin] [2025-06-09 23:15:51] reason: bcr
+
+[09-Jun-2025 23:15:51 Europe/Berlin] [2025-06-09 23:15:51] Autocommit status: enabled
+[09-Jun-2025 23:15:51 Europe/Berlin] [2025-06-09 23:15:51] Transaction started
+[09-Jun-2025 23:15:51 Europe/Berlin] Executing SQL: INSERT INTO returns (stock_id, quantity, reason, returned_by, approved_by, created_at) 
+            VALUES (?, ?, ?, ?, ?, ?)
+[09-Jun-2025 23:15:51 Europe/Berlin] [2025-06-09 23:15:51] Statement prepared successfully
+[09-Jun-2025 23:15:51 Europe/Berlin] [2025-06-09 23:15:51] Statement executed successfully
+[09-Jun-2025 23:15:51 Europe/Berlin] [2025-06-09 23:15:51] Last insert ID: 1
+[09-Jun-2025 23:15:51 Europe/Berlin] [2025-06-09 23:15:51] Data verified successfully:
+[09-Jun-2025 23:15:51 Europe/Berlin] [2025-06-09 23:15:51] ID: 1
+[09-Jun-2025 23:15:51 Europe/Berlin] [2025-06-09 23:15:51] Stock ID: 19
+[09-Jun-2025 23:15:51 Europe/Berlin] [2025-06-09 23:15:51] Quantity: 5.00
+[09-Jun-2025 23:15:51 Europe/Berlin] [2025-06-09 23:15:51] Reason: bcr
+
+[09-Jun-2025 23:15:51 Europe/Berlin] [2025-06-09 23:15:51] Returned By: 19
+[09-Jun-2025 23:15:51 Europe/Berlin] [2025-06-09 23:15:51] Created At: 2025-06-09 23:15:51
+[09-Jun-2025 23:15:51 Europe/Berlin] Executing stock update: UPDATE stocks SET stok = stok + ? WHERE id = ?
+[09-Jun-2025 23:15:51 Europe/Berlin] Stock update statement prepared successfully
+[09-Jun-2025 23:15:51 Europe/Berlin] [2025-06-09 23:15:51] Parameters bound successfully
+[09-Jun-2025 23:15:51 Europe/Berlin] Stock update executed successfully
+[09-Jun-2025 23:15:51 Europe/Berlin] Stock verified successfully:
+[09-Jun-2025 23:15:51 Europe/Berlin] Stock ID: 19
+[09-Jun-2025 23:15:51 Europe/Berlin] Current Stock: 1033.00
+[09-Jun-2025 23:15:51 Europe/Berlin] Stock update transaction committed
+[09-Jun-2025 23:32:30 Europe/Berlin] [2025-06-09 23:32:30] Session status:
+[09-Jun-2025 23:32:30 Europe/Berlin] [2025-06-09 23:32:30] Session ID: qjq9f595i1tvlc6ke50l9aq968
+[09-Jun-2025 23:32:30 Europe/Berlin] [2025-06-09 23:32:30] Session variables:
+[09-Jun-2025 23:32:30 Europe/Berlin] [2025-06-09 23:32:30] user_id: 15
+[09-Jun-2025 23:32:30 Europe/Berlin] [2025-06-09 23:32:30] username: sri rejeki handayani
+[09-Jun-2025 23:32:30 Europe/Berlin] [2025-06-09 23:32:30] role: gudang
+[09-Jun-2025 23:37:08 Europe/Berlin] [2025-06-09 23:37:08] Session status:
+[09-Jun-2025 23:37:08 Europe/Berlin] [2025-06-09 23:37:08] Session ID: qjq9f595i1tvlc6ke50l9aq968
+[09-Jun-2025 23:37:08 Europe/Berlin] [2025-06-09 23:37:08] Session variables:
+[09-Jun-2025 23:37:08 Europe/Berlin] [2025-06-09 23:37:08] user_id: 19
+[09-Jun-2025 23:37:08 Europe/Berlin] [2025-06-09 23:37:08] username: ceca
+[09-Jun-2025 23:37:08 Europe/Berlin] [2025-06-09 23:37:08] role: produksi
+[09-Jun-2025 23:37:08 Europe/Berlin] [2025-06-09 23:37:08] Database connection status:
+[09-Jun-2025 23:37:08 Europe/Berlin] [2025-06-09 23:37:08] Database connection successful
+[09-Jun-2025 23:37:08 Europe/Berlin] [2025-06-09 23:37:08] Server info: 10.4.32-MariaDB
+[09-Jun-2025 23:37:08 Europe/Berlin] [2025-06-09 23:37:08] Database: indonoodle_track
+[09-Jun-2025 23:37:08 Europe/Berlin] [2025-06-09 23:37:08] Returns table exists
+[09-Jun-2025 23:37:08 Europe/Berlin] [2025-06-09 23:37:08] Stocks table exists
+[09-Jun-2025 23:45:37 Europe/Berlin] [2025-06-09 23:45:37] Session status:
+[09-Jun-2025 23:45:37 Europe/Berlin] [2025-06-09 23:45:37] Session ID: qjq9f595i1tvlc6ke50l9aq968
+[09-Jun-2025 23:45:37 Europe/Berlin] [2025-06-09 23:45:37] Session variables:
+[09-Jun-2025 23:45:37 Europe/Berlin] [2025-06-09 23:45:37] user_id: 19
+[09-Jun-2025 23:45:37 Europe/Berlin] [2025-06-09 23:45:37] username: ceca
+[09-Jun-2025 23:45:37 Europe/Berlin] [2025-06-09 23:45:37] role: produksi
+[09-Jun-2025 23:45:37 Europe/Berlin] [2025-06-09 23:45:37] Database connection status:
+[09-Jun-2025 23:45:37 Europe/Berlin] [2025-06-09 23:45:37] Database connection successful
+[09-Jun-2025 23:45:37 Europe/Berlin] [2025-06-09 23:45:37] Server info: 10.4.32-MariaDB
+[09-Jun-2025 23:45:37 Europe/Berlin] [2025-06-09 23:45:37] Database: indonoodle_track
+[09-Jun-2025 23:45:37 Europe/Berlin] [2025-06-09 23:45:37] Returns table exists
+[09-Jun-2025 23:45:37 Europe/Berlin] [2025-06-09 23:45:37] Stocks table exists
+[09-Jun-2025 23:45:49 Europe/Berlin] [2025-06-09 23:45:49] Session status:
+[09-Jun-2025 23:45:49 Europe/Berlin] [2025-06-09 23:45:49] Session ID: qjq9f595i1tvlc6ke50l9aq968
+[09-Jun-2025 23:45:49 Europe/Berlin] [2025-06-09 23:45:49] Session variables:
+[09-Jun-2025 23:45:49 Europe/Berlin] [2025-06-09 23:45:49] user_id: 19
+[09-Jun-2025 23:45:49 Europe/Berlin] [2025-06-09 23:45:49] username: ceca
+[09-Jun-2025 23:45:49 Europe/Berlin] [2025-06-09 23:45:49] role: produksi
+[09-Jun-2025 23:45:49 Europe/Berlin] [2025-06-09 23:45:49] Database connection status:
+[09-Jun-2025 23:45:49 Europe/Berlin] [2025-06-09 23:45:49] Database connection successful
+[09-Jun-2025 23:45:49 Europe/Berlin] [2025-06-09 23:45:49] Server info: 10.4.32-MariaDB
+[09-Jun-2025 23:45:49 Europe/Berlin] [2025-06-09 23:45:49] Database: indonoodle_track
+[09-Jun-2025 23:45:49 Europe/Berlin] [2025-06-09 23:45:49] Returns table exists
+[09-Jun-2025 23:45:49 Europe/Berlin] [2025-06-09 23:45:49] Stocks table exists
+[09-Jun-2025 23:45:49 Europe/Berlin] Session data:
+[09-Jun-2025 23:45:49 Europe/Berlin] user_id: 19
+[09-Jun-2025 23:45:49 Europe/Berlin] role: produksi
+[09-Jun-2025 23:45:49 Europe/Berlin] [2025-06-09 23:45:49] Form data received:
+[09-Jun-2025 23:45:49 Europe/Berlin] [2025-06-09 23:45:49] stock_id: 12
+[09-Jun-2025 23:45:49 Europe/Berlin] [2025-06-09 23:45:49] quantity: 5
+[09-Jun-2025 23:45:49 Europe/Berlin] [2025-06-09 23:45:49] reason: blh
+[09-Jun-2025 23:45:49 Europe/Berlin] [2025-06-09 23:45:49] Autocommit status: enabled
+[09-Jun-2025 23:45:49 Europe/Berlin] [2025-06-09 23:45:49] Transaction started
+[09-Jun-2025 23:45:49 Europe/Berlin] Executing SQL: INSERT INTO returns (stock_id, quantity, reason, returned_by, approved_by, created_at) 
+            VALUES (?, ?, ?, ?, ?, ?)
+[09-Jun-2025 23:45:49 Europe/Berlin] [2025-06-09 23:45:49] Statement prepared successfully
+[09-Jun-2025 23:45:49 Europe/Berlin] [2025-06-09 23:45:49] Statement executed successfully
+[09-Jun-2025 23:45:49 Europe/Berlin] [2025-06-09 23:45:49] Last insert ID: 1
+[09-Jun-2025 23:45:49 Europe/Berlin] [2025-06-09 23:45:49] Data verified successfully:
+[09-Jun-2025 23:45:49 Europe/Berlin] [2025-06-09 23:45:49] ID: 1
+[09-Jun-2025 23:45:49 Europe/Berlin] [2025-06-09 23:45:49] Stock ID: 12
+[09-Jun-2025 23:45:49 Europe/Berlin] [2025-06-09 23:45:49] Quantity: 5.00
+[09-Jun-2025 23:45:49 Europe/Berlin] [2025-06-09 23:45:49] Reason: blh
+[09-Jun-2025 23:45:49 Europe/Berlin] [2025-06-09 23:45:49] Returned By: 19
+[09-Jun-2025 23:45:49 Europe/Berlin] [2025-06-09 23:45:49] Created At: 2025-06-09 23:45:49
+[09-Jun-2025 23:45:49 Europe/Berlin] Executing stock update: UPDATE stocks SET stok = stok + ? WHERE id = ?
+[09-Jun-2025 23:45:49 Europe/Berlin] Stock update statement prepared successfully
+[09-Jun-2025 23:45:49 Europe/Berlin] [2025-06-09 23:45:49] Parameters bound successfully
+[09-Jun-2025 23:45:49 Europe/Berlin] Stock update executed successfully
+[09-Jun-2025 23:45:49 Europe/Berlin] Stock verified successfully:
+[09-Jun-2025 23:45:49 Europe/Berlin] Stock ID: 12
+[09-Jun-2025 23:45:49 Europe/Berlin] Current Stock: 2019.00
+[09-Jun-2025 23:45:49 Europe/Berlin] Stock update transaction committed

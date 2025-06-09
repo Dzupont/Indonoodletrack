@@ -49,9 +49,9 @@ $recentRequests = $stmt->get_result();
 $stmt->close();
 
 // Get recent returns
-$sql = "SELECT r.*, m.name as bahan_baku, m.unit 
+$sql = "SELECT r.*, s.nama as bahan_baku, s.satuan 
         FROM returns r 
-        LEFT JOIN raw_materials m ON r.material_id = m.id 
+        LEFT JOIN stocks s ON r.stock_id = s.id 
         WHERE r.returned_by = ? 
         ORDER BY r.created_at DESC 
         LIMIT 5";

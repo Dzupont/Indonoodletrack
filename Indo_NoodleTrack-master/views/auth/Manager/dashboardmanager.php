@@ -1,11 +1,51 @@
 <?php
 // dashboardmanager.php
 session_start();
-// Cek login
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+require_once '../../../config/session.php';
+require_once '../../../config/database.php';
+require_once '../../../config/base_url.php';
+
+// Cek login dan role
+if (!requireLogin(false) || getCurrentUserRole() !== 'manager') {
+    header("Location: " . getBaseUrl() . "views/auth/login.php");
     exit();
 }
+
+// Get database connection
+$conn = getDBConnection();
+
+// Fetch real-time statistics
+$total_returns = $conn->query("SELECT COUNT(*) as total FROM returns WHERE status IN ('pending', 'approved')")->fetch_assoc()['total'];
+$total_requests = $conn->query("SELECT COUNT(*) as total FROM requests WHERE status IN ('pending', 'approved')")->fetch_assoc()['total'];
+
+// Fetch recent activities from both requests and returns
+$recent_activities = $conn->query("
+    SELECT 
+        'request' as activity_type,
+        r.id,
+        CONCAT('Permintaan bahan baku ', m.name, ' sebanyak ', r.quantity, ' ', m.unit) as description,
+        r.created_at,
+        u.username as user_name
+    FROM requests r
+    LEFT JOIN raw_materials m ON m.id = r.material_id
+    LEFT JOIN users u ON u.id = r.requested_by
+    WHERE r.status IN ('pending', 'approved')
+    UNION ALL
+    SELECT 
+        'return' as activity_type,
+        r.id,
+        CONCAT('Retur bahan baku ', s.nama, ' sebanyak ', r.quantity, ' ', s.satuan) as description,
+        r.created_at,
+        u.username as user_name
+    FROM returns r
+    LEFT JOIN stocks s ON s.id = r.stock_id
+    LEFT JOIN users u ON u.id = r.returned_by
+    WHERE r.status IN ('pending', 'approved')
+    ORDER BY created_at DESC
+    LIMIT 10
+")->fetch_all(MYSQLI_ASSOC);
+
+
 ?>
 
 <!DOCTYPE html>
@@ -75,30 +115,134 @@ if (!isset($_SESSION['user_id'])) {
 
         <!-- Summary Cards -->
         <div class="grid grid-cols-3 gap-6 mb-8">
-            <div class="bg-white border border-[#3C9BA2] p-6 rounded-xl text-center shadow-md">
-                <p class="text-sm font-medium text-[#3C9BA2] mb-1">Total Aktivitas</p>
-                <p class="text-5xl font-bold text-[#111]">24</p>
-            </div>
-            <div class="bg-white border border-[#3C9BA2] p-6 rounded-xl text-center shadow-md">
-                <p class="text-sm font-medium text-[#3C9BA2] mb-1">Permintaan Bahan Baku</p>
-                <div class="flex justify-center items-center gap-2">
-                    <p class="text-2xl font-bold text-[#3C9BA2]">20</p>
+            <div class="bg-white border border-[#3C9BA2] p-6 rounded-xl text-center shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer">
+                <p class="text-sm font-medium text-[#3C9BA2] mb-1">Total Retur</p>
+                <p class="text-5xl font-bold text-[#111]"><?php echo $total_returns; ?></p>
+                <div class="mt-2">
+                    <span class="text-sm text-red-500">+2%</span>
+                    <span class="text-xs text-gray-500">from last month</span>
                 </div>
             </div>
-            <div class="bg-white border border-[#3C9BA2] p-6 rounded-xl text-center shadow-md">
+            <div class="bg-white border border-[#3C9BA2] p-6 rounded-xl text-center shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer">
+                <p class="text-sm font-medium text-[#3C9BA2] mb-1">Permintaan Bahan Baku</p>
+                <p class="text-5xl font-bold text-[#111]"><?php echo $total_requests; ?></p>
+                <div class="mt-2">
+                    <span class="text-sm text-green-500">+15%</span>
+                    <span class="text-xs text-gray-500">from last month</span>
+                </div>
+            </div>
+            <div class="bg-white border border-[#3C9BA2] p-6 rounded-xl text-center shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer">
+                <p class="text-sm font-medium text-[#3C9BA2] mb-1">Total Aktivitas</p>
+                <p class="text-5xl font-bold text-[#111]"><?php echo $total_returns + $total_requests; ?></p>
+                <div class="mt-2">
+                    <span class="text-sm text-yellow-500">+5%</span>
+                    <span class="text-xs text-gray-500">from last month</span>
+                </div>
+            </div>
+            <div class="bg-white border border-[#3C9BA2] p-6 rounded-xl text-center shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer">
                 <p class="text-sm font-medium text-[#3C9BA2] mb-1">Return</p>
-                <p class="text-2xl font-bold text-[#3C9BA2]">4</p>
+                <p class="text-3xl font-bold text-[#3C9BA2]"><?php echo $total_returns; ?></p>
+                <div class="mt-2">
+                    <span class="text-sm text-red-500">+2%</span>
+                    <span class="text-xs text-gray-500">from last month</span>
+                </div>
             </div>
         </div>
 
-        <!-- Aktivitas Table -->
+        <!-- Aktivitas Terbaru -->
         <div class="bg-white rounded-xl shadow-md">
             <div class="flex justify-between items-center p-4 border-b">
-                <h2 class="font-semibold text-base text-[#3C9BA2]">Aktivitas Berhasil</h2>
+                <h2 class="font-semibold text-base text-[#3C9BA2]">Aktivitas Terbaru</h2>
                 <div class="flex items-center gap-2 text-sm">
-                    <label>Show</label>
-                    <select class="border border-gray-300 rounded px-2 py-1 text-sm">
-                        <option>All Column</option>
+                    <label class="text-[#3C9BA2]">Filter:</label>
+                    <select class="border border-[#3C9BA2] rounded px-2 py-1 text-sm bg-white">
+                        <option value="all">Semua Aktivitas</option>
+                        <option value="requests">Permintaan Bahan Baku</option>
+                        <option value="returns">Retur</option>
+                    </select>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="bg-[#AEDFE3] text-[#3C9BA2]">
+                            <th class="px-4 py-3 text-left">Jenis Aktivitas</th>
+                            <th class="px-4 py-3 text-left">Deskripsi</th>
+                            <th class="px-4 py-3 text-left">Waktu</th>
+                            <th class="px-4 py-3 text-left">Pengguna</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($recent_activities as $activity): ?>
+                        <tr class="border-b hover:bg-gray-50 transition-colors">
+                            <td class="px-4 py-3">
+                                <span class="px-2 py-1 rounded-full text-xs <?php echo $activity['activity_type'] === 'request' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'; ?>">
+                                    <?php echo $activity['activity_type'] === 'request' ? 'Permintaan' : 'Retur'; ?>
+                                </span>
+                            </td>
+                            <td class="px-4 py-3"><?php echo htmlspecialchars($activity['description']); ?></td>
+                            <td class="px-4 py-3"><?php echo date('d M Y H:i', strtotime($activity['created_at'])); ?></td>
+                            <td class="px-4 py-3"><?php echo htmlspecialchars($activity['user_name']); ?></td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Grafik Aktivitas -->
+        <div class="bg-white rounded-xl shadow-md mt-8">
+            <div class="p-4 border-b">
+                <h2 class="font-semibold text-base text-[#3C9BA2]">Grafik Aktivitas</h2>
+            </div>
+            <div class="p-4">
+                <canvas id="activityChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Script Grafik -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            // Data untuk grafik
+            const activityData = {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [
+                    {
+                        label: 'Total Aktivitas',
+                        data: [12, 19, 3, 5, 2, 3],
+                        borderColor: '#3C9BA2',
+                        tension: 0.1
+                    }
+                ]
+            };
+
+            // Konfigurasi grafik
+            const config = {
+                type: 'line',
+                data: activityData,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Aktivitas Bulanan'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                },
+            };
+
+            // Membuat grafik
+            const ctx = document.getElementById('activityChart').getContext('2d');
+            new Chart(ctx, config);
+        </script>
                         <option>Aktivitas</option>
                         <option>Return</option>
                     </select>

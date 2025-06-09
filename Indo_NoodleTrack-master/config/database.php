@@ -21,11 +21,22 @@ function getDBConnection() {
             throw new Exception("Connection failed: " . $conn->connect_error);
         }
         
-        // Check if database exists, create if not
-        $conn->query("CREATE DATABASE IF NOT EXISTS " . DB_NAME);
+        // Check if database exists
+        $sql = "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '" . DB_NAME . "'";
+        $result = $conn->query($sql);
+        
+        if (!$result || $result->num_rows == 0) {
+            // Database doesn't exist, create it
+            $sql = "CREATE DATABASE " . DB_NAME;
+            if (!$conn->query($sql)) {
+                throw new Exception("Error creating database: " . $conn->error);
+            }
+        }
         
         // Select the database
-        $conn->select_db(DB_NAME);
+        if (!$conn->select_db(DB_NAME)) {
+            throw new Exception("Error selecting database: " . $conn->error);
+        }
         
         $conn->set_charset("utf8");
         return $conn;
@@ -126,17 +137,23 @@ try {
         throw new Exception("Error creating requests table: " . $conn->error);
     }
 
-    // Returns table
+    // Drop existing returns table if exists
+    $sql = "DROP TABLE IF EXISTS returns";
+    $conn->query($sql);
+
+    // Create returns table
     $sql = "CREATE TABLE IF NOT EXISTS returns (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        material_id INT,
+        stock_id INT,
         quantity DECIMAL(10,2) NOT NULL,
         reason TEXT,
         status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
         returned_by INT NOT NULL,
+        approved_by INT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (material_id) REFERENCES raw_materials(id) ON DELETE CASCADE,
-        FOREIGN KEY (returned_by) REFERENCES users(id) ON DELETE CASCADE
+        FOREIGN KEY (stock_id) REFERENCES stocks(id) ON DELETE CASCADE,
+        FOREIGN KEY (returned_by) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (approved_by) REFERENCES users(id) ON DELETE SET NULL
     )";
     if (!$conn->query($sql)) {
         throw new Exception("Error creating returns table: " . $conn->error);

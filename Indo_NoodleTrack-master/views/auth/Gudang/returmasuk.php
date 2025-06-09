@@ -23,31 +23,18 @@ if ($conn->connect_error) {
 
 // Process form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $material_id = $_POST['material_id'];
+    $stock_id = $_POST['stock_id'];
     $quantity = $_POST['quantity'];
     $reason = $_POST['reason'];
     $returned_by = $_SESSION['user_id'];
     $approved_by = null; // Will be set when approved
     $created_at = date('Y-m-d H:i:s');
-
-    // Insert return record
-    $sql = "INSERT INTO returns (material_id, quantity, reason, returned_by, approved_by, created_at) 
-            VALUES (?, ?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    
-    if ($stmt->execute([$material_id, $quantity, $reason, $returned_by, $approved_by, $created_at])) {
-        $_SESSION['success'] = "Retur berhasil ditambahkan";
-        header('Location: returmasuk.php');
-        exit();
-    } else {
-        $_SESSION['error'] = "Gagal menambahkan retur";
-    }
 }
 
 // Fetch all returns
-$sql = "SELECT r.*, m.name as material_name, u.username as returned_by_name 
+$sql = "SELECT r.*, s.nama as stock_name, u.username as returned_by_name 
         FROM returns r 
-        LEFT JOIN raw_materials m ON r.material_id = m.id 
+        LEFT JOIN stocks s ON r.stock_id = s.id 
         LEFT JOIN users u ON r.returned_by = u.id 
         ORDER BY r.created_at DESC";
 $result = $conn->query($sql);
@@ -104,9 +91,6 @@ while ($row = $result->fetch_assoc()) {
 <main class="flex-1 bg-white px-10 py-8">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-semibold text-[#4A9AB7]">Retur Masuk</h1>
-        <button class="bg-[#4A9AB7] text-white px-4 py-2 rounded-lg shadow-md hover:bg-[#3a7c95]" data-bs-toggle="modal" data-bs-target="#addReturnModal">
-            + Tambah Retur
-        </button>
     </div>
 
     <?php if (isset($_SESSION['success'])): ?>
@@ -157,50 +141,6 @@ while ($row = $result->fetch_assoc()) {
         </table>
     </div>
 </main>
-
-<!-- Add Return Modal -->
-<div class="modal fade" id="addReturnModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Tambah Retur</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form method="POST">
-                    <div class="mb-3">
-                        <label for="material_id" class="form-label">Material</label>
-                        <select class="form-control" id="material_id" name="material_id" required>
-                            <option value="">Pilih Material</option>
-                            <?php
-                            $sql = "SELECT id, nama FROM raw_materials ORDER BY nama";
-                            $result = $conn->query($sql);
-                            while ($row = $result->fetch_assoc()) {
-                                echo "<option value='" . $row['id'] . "'>" . $row['nama'] . "</option>";
-                            }
-                            ?>
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="quantity" class="form-label">Jumlah</label>
-                        <input type="number" class="form-control" id="quantity" name="quantity" min="1" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="reason" class="form-label">Alasan Retur</label>
-                        <textarea class="form-control" id="reason" name="reason" rows="3" required></textarea>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary">Simpan</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- View Return Modal -->
 <div class="modal fade" id="viewReturnModal" tabindex="-1">

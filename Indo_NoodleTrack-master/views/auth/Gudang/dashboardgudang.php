@@ -7,10 +7,14 @@ require_once $rootPath . '/config/database.php';
 // Get database connection
 $conn = getDBConnection();
 
-// Get dashboard data
-$sql = "SELECT retur_bahan_baku, retur_bahan_baku_rejected FROM dashboard LIMIT 1";
+// Get total approved and rejected requests
+$sql = "SELECT 
+            COUNT(CASE WHEN status = 'approved' THEN 1 END) as total_approved,
+            COUNT(CASE WHEN status = 'rejected' THEN 1 END) as total_rejected,
+            COUNT(*) as total_requests
+        FROM requests";
 $result = $conn->query($sql);
-$dashboard = $result->fetch_assoc();
+$request_stats = $result->fetch_assoc();
 
 // Get total approved and rejected returns
 $sql = "SELECT 
@@ -70,32 +74,63 @@ $returns_stats = $result->fetch_assoc();
 
     <!-- Content -->
     <div class="flex-1 px-10 py-8">
+<?php
+require_once __DIR__ . '/../../../config/session.php';
+// Check login and role
+checkLoginAndRedirect();
+if (getCurrentUserRole() !== 'gudang') {
+    header('Location: ' . getBaseUrl() . 'views/auth/login.php');
+    exit();
+}
+?>
+
       <!-- Header -->
       <div class="flex justify-between items-start mb-10">
         <h1 class="text-3xl font-bold text-[#388ca6]">Dashboard</h1>
         <div class="text-end">
           <p class="font-semibold">Divisi Gudang</p>
-          <p class="text-sm text-gray-600">User id: 0023899</p>
+          <p class="text-sm text-gray-600">User: <?php echo htmlspecialchars($_SESSION['username']); ?></p>
           <img src="https://via.placeholder.com/40" class="rounded-full mt-2" alt="User" />
         </div>
       </div>
 
       <!-- Dashboard Cards -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-4xl">
+        <style>
+          .dashboard-card {
+            transition: transform 0.2s ease-in-out;
+          }
+          .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          }
+          .dashboard-card .number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            line-height: 1;
+          }
+          .dashboard-card .label {
+            font-size: 0.875rem;
+            color: #64748b;
+          }
+        </style>
         <!-- Permintaan -->
         <div class="bg-white border border-[#4A9AB7] p-6 rounded-2xl text-[#4A9AB7] shadow-sm">
           <h2 class="text-lg font-semibold mb-4">Permintaan Bahan Baku</h2>
           <div class="grid grid-cols-2 gap-4">
-            <div class="bg-[#EAF6F8] p-4 rounded-lg flex flex-col items-center justify-center">
-              <i class="fas fa-check-circle text-2xl mb-2 text-green-600"></i>
-              <p class="font-medium">Disetujui</p>
-              <p class="text-2xl font-bold">0</p>
+            <div class="bg-[#EAF6F8] p-6 rounded-lg flex flex-col items-center justify-center dashboard-card">
+              <i class="fas fa-check-circle text-3xl mb-4 text-green-600"></i>
+              <p class="label">Disetujui</p>
+              <p class="number"><?php echo number_format($request_stats['total_approved']); ?></p>
             </div>
-            <div class="bg-[#FBEAEA] p-4 rounded-lg flex flex-col items-center justify-center">
-              <i class="fas fa-times-circle text-2xl mb-2 text-red-600"></i>
-              <p class="font-medium">Ditolak</p>
-              <p class="text-2xl font-bold">0</p>
+            <div class="bg-[#FBEAEA] p-6 rounded-lg flex flex-col items-center justify-center dashboard-card">
+              <i class="fas fa-times-circle text-3xl mb-4 text-red-600"></i>
+              <p class="label">Ditolak</p>
+              <p class="number"><?php echo number_format($request_stats['total_rejected']); ?></p>
             </div>
+          </div>
+          <div class="mt-4 text-sm text-gray-600">
+            <span class="font-medium">Total Permintaan:</span> <?php echo number_format($request_stats['total_requests']); ?>
           </div>
         </div>
 

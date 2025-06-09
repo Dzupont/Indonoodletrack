@@ -30,7 +30,7 @@ try {
     if (!$stmt->execute()) throw new Exception($conn->error);
     
     // Update request status
-    $stmt = $conn->prepare("UPDATE requests SET status = 'rejected', updated_at = CURRENT_TIMESTAMP WHERE id = ?");
+    $stmt = $conn->prepare("UPDATE requests SET status = 'rejected', rejected_at = CURRENT_TIMESTAMP WHERE id = ?");
     $stmt->bind_param("i", $request_id);
     if (!$stmt->execute()) throw new Exception($conn->error);
     
